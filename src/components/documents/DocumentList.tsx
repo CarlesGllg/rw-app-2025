@@ -8,7 +8,7 @@ const DOCUMENTS = [
     id: "1",
     title: "Calendario Escolar 2025",
     description: "Calendario oficial con fechas importantes, periodos vacacionales y eventos escolares",
-    type: "pdf",
+    type: "pdf" as const,
     url: "#",
     date: "2025-04-01T10:00:00",
     category: "Administrativo"
@@ -17,7 +17,7 @@ const DOCUMENTS = [
     id: "2",
     title: "Reglamento Interno",
     description: "Normativa de convivencia escolar, derechos y obligaciones de la comunidad educativa",
-    type: "pdf",
+    type: "pdf" as const,
     url: "#",
     date: "2025-03-15T14:30:00",
     category: "Normativas"
@@ -26,7 +26,7 @@ const DOCUMENTS = [
     id: "3",
     title: "Lista de útiles - 4º Primaria",
     description: "Lista completa de materiales necesarios para el curso escolar",
-    type: "pdf",
+    type: "pdf" as const,
     url: "#",
     date: "2025-03-10T09:45:00",
     category: "Material Escolar"
@@ -35,7 +35,7 @@ const DOCUMENTS = [
     id: "4",
     title: "Circular - Excursión educativa",
     description: "Información sobre la visita al museo programada para el 5 de mayo",
-    type: "doc",
+    type: "doc" as const,
     url: "#",
     date: "2025-04-12T13:20:00",
     category: "Actividades"
@@ -44,7 +44,7 @@ const DOCUMENTS = [
     id: "5",
     title: "Formulario de autorización médica",
     description: "Documento para autorización de medicamentos en horario escolar",
-    type: "pdf",
+    type: "pdf" as const,
     url: "#",
     date: "2025-02-28T11:10:00",
     category: "Salud"
