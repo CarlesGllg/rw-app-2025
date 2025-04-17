@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import type { Profile } from '@/types/database';
+import { toast } from 'sonner';
 
 export type User = Profile & {
   email: string;
@@ -61,5 +62,16 @@ export function useAuth() {
     };
   }, [navigate]);
 
-  return { user, loading };
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      navigate('/');
+      toast.success('Sesión cerrada exitosamente');
+    } catch (error: any) {
+      toast.error('Error al cerrar sesión');
+    }
+  };
+
+  return { user, loading, signOut };
 }

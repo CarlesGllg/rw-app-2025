@@ -2,16 +2,17 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
+    if (user) {
       navigate("/dashboard");
     }
-  }, [navigate]);
+  }, [user, navigate]);
   
   return (
     <div className="min-h-screen bg-ios-gray flex flex-col">
