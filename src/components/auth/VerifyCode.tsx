@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 type VerifyCodeProps = {
   email: string;
@@ -16,6 +17,39 @@ const VerifyCode = ({ email }: VerifyCodeProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Listen for auth state changes from magic link
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // Fetch profile data after sign in
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileError) {
+          toast.error("Error al cargar el perfil");
+          return;
+        }
+
+        // Store user data
+        localStorage.setItem("user", JSON.stringify({
+          id: session.user.id,
+          email: session.user.email,
+          ...profile
+        }));
+
+        toast.success("Acceso exitoso");
+        navigate("/dashboard");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
+
+  useEffect(() => {
     if (timeLeft === 0) return;
     
     const timer = setTimeout(() => {
@@ -25,65 +59,40 @@ const VerifyCode = ({ email }: VerifyCodeProps) => {
     return () => clearTimeout(timer);
   }, [timeLeft]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (code.length !== 6) {
-      toast.error("El código debe tener 6 dígitos");
-      return;
-    }
-    
+  const resendCode = async () => {
     setIsLoading(true);
-    
-    // Simulate verification process
-    // In a real app, this would call an API to verify the code
-    setTimeout(() => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/verificar`
+        }
+      });
+      
+      if (error) throw error;
+      
+      setTimeLeft(60);
+      toast.success("Nuevo código enviado a " + email);
+    } catch (error: any) {
+      toast.error(error.message || "Error al reenviar el código");
+    } finally {
       setIsLoading(false);
-      // For demo purposes, any 6-digit code will work
-      if (code.length === 6) {
-        // Store some mock user data - in a real app this would come from backend
-        localStorage.setItem("user", JSON.stringify({
-          id: "1",
-          name: "María González",
-          email: email,
-          role: "parent",
-          children: [
-            { name: "Ana González", grade: "4º Primaria" },
-          ]
-        }));
-        toast.success("Acceso exitoso");
-        navigate("/dashboard");
-      } else {
-        toast.error("Código inválido. Inténtalo de nuevo.");
-      }
-    }, 1500);
-  };
-
-  const resendCode = () => {
-    setTimeLeft(60);
-    toast.success("Nuevo código enviado a " + email);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       <div className="space-y-2">
         <div className="text-sm text-center mb-4">
-          Hemos enviado un código de verificación a 
+          Hemos enviado un enlace de verificación a 
           <span className="font-medium"> {email}</span>
         </div>
         
-        <Input
-          id="code"
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
-          className="ios-input text-center text-2xl tracking-widest h-16"
-          placeholder="······"
-          maxLength={6}
-          inputMode="numeric"
-          required
-        />
-        
-        <div className="text-center mt-2">
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-500 mb-2">
+            Por favor revisa tu correo y haz clic en el enlace enviado
+          </p>
+          
           <span className="text-sm text-gray-500">
             {timeLeft > 0 ? (
               <>Reenviar en {timeLeft}s</>
@@ -92,26 +101,15 @@ const VerifyCode = ({ email }: VerifyCodeProps) => {
                 type="button" 
                 onClick={resendCode}
                 className="text-ios-blue hover:underline"
+                disabled={isLoading}
               >
-                Reenviar código
+                Reenviar enlace
               </button>
             )}
           </span>
         </div>
       </div>
-      
-      <Button 
-        type="submit" 
-        className="ios-button w-full"
-        disabled={isLoading || code.length !== 6}
-      >
-        {isLoading ? (
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-        ) : (
-          "Verificar"
-        )}
-      </Button>
-    </form>
+    </div>
   );
 };
 

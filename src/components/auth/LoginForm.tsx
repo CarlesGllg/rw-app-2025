@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Lock, Mail } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -22,11 +23,23 @@ const LoginForm = () => {
     
     setIsLoading(true);
     
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/verificar`
+        }
+      });
+      
+      if (error) throw error;
+      
       navigate("/verificar", { state: { email } });
-    }, 1500);
+      toast.success("Código de verificación enviado a tu correo");
+    } catch (error: any) {
+      toast.error(error.message || "Error al enviar el código");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
