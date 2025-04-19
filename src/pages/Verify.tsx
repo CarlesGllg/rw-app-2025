@@ -16,6 +16,22 @@ const Verify = () => {
     }
   }, [email, navigate]);
 
+  // Configuración correcta para aceptar y manejar el código de verificación
+  useEffect(() => {
+    // Comprueba si hay un token hash en la URL (cuando se regresa desde el correo electrónico)
+    const handleEmailRedirect = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      
+      if (accessToken && refreshToken) {
+        navigate("/dashboard");
+      }
+    };
+    
+    handleEmailRedirect();
+  }, [navigate]);
+
   return (
     <div className="min-h-screen flex flex-col bg-ios-gray">
       <header className="py-8 px-6">

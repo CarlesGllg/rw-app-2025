@@ -48,7 +48,7 @@ const LoginForm = () => {
 
         if (error) throw error;
         
-        navigate('/verify', { state: { email } });
+        navigate('/verificar', { state: { email } });
         toast.success("Por favor revisa tu correo para verificar tu cuenta");
       }
     } catch (error: any) {
