@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import type { UserRole } from '@/types/database';
@@ -19,6 +19,7 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const redirectedRef = useRef(false);
   
   // Prevent redirect on auth pages
   const isAuthPage = location.pathname === '/login' || 
@@ -42,28 +43,32 @@ export function useAuth() {
             .eq('id', session.user.id)
             .maybeSingle();
 
-          const userData: User = {
-            id: session.user.id,
-            email: session.user.email!,
-            ...(profile ? {
-              role: profile.role as UserRole,
-              full_name: profile.full_name,
-              created_at: profile.created_at,
-              updated_at: profile.updated_at
-            } : {
-              role: 'parent' as UserRole,
-              full_name: session.user.user_metadata.full_name,
-              created_at: session.user.created_at,
-              updated_at: session.user.created_at
-            })
-          };
-          
-          setUser(userData);
+          if (mounted) {
+            const userData: User = {
+              id: session.user.id,
+              email: session.user.email!,
+              ...(profile ? {
+                role: profile.role as UserRole,
+                full_name: profile.full_name,
+                created_at: profile.created_at,
+                updated_at: profile.updated_at
+              } : {
+                role: 'parent' as UserRole,
+                full_name: session.user.user_metadata.full_name,
+                created_at: session.user.created_at,
+                updated_at: session.user.created_at
+              })
+            };
+            
+            setUser(userData);
+          }
         } catch (error) {
           console.error("Error fetching user profile:", error);
         }
       } else {
-        setUser(null);
+        if (mounted) {
+          setUser(null);
+        }
       }
       
       if (mounted) {
@@ -80,18 +85,41 @@ export function useAuth() {
         if (!mounted) return;
         
         if (session) {
-          const userData: User = {
-            id: session.user.id,
-            email: session.user.email!,
-            role: 'parent' as UserRole,
-            full_name: session.user.user_metadata.full_name,
-            created_at: session.user.created_at,
-            updated_at: session.user.created_at
-          };
-          setUser(userData);
-        } else if (!isAuthPage) {
+          try {
+            // Fetch profile data
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .maybeSingle();
+
+            const userData: User = {
+              id: session.user.id,
+              email: session.user.email!,
+              ...(profile ? {
+                role: profile.role as UserRole,
+                full_name: profile.full_name,
+                created_at: profile.created_at,
+                updated_at: profile.updated_at
+              } : {
+                role: 'parent' as UserRole,
+                full_name: session.user.user_metadata.full_name,
+                created_at: session.user.created_at,
+                updated_at: session.user.created_at
+              })
+            };
+            
+            setUser(userData);
+          } catch (error) {
+            console.error("Error fetching user profile:", error);
+          }
+        } else {
           // Only redirect if not on an auth page and no session exists
-          navigate('/login');
+          // Use the ref to ensure we only redirect once
+          if (!isAuthPage && !redirectedRef.current) {
+            redirectedRef.current = true;
+            navigate('/login');
+          }
         }
         
         setLoading(false);

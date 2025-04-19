@@ -14,6 +14,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // Only redirect if the user isn't authenticated
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
