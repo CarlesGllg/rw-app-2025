@@ -2,11 +2,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import type { Profile } from '@/types/database';
+import type { UserRole } from '@/types/database';
 import { toast } from 'sonner';
 
-export type User = Profile & {
+export type User = {
+  id: string;
   email: string;
+  role: UserRole;
+  full_name: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export function useAuth() {
@@ -21,7 +26,7 @@ export function useAuth() {
         setUser({
           id: session.user.id,
           email: session.user.email!,
-          role: 'parent',
+          role: 'parent' as UserRole,
           full_name: session.user.user_metadata.full_name,
           created_at: session.user.created_at,
           updated_at: session.user.created_at
@@ -44,7 +49,7 @@ export function useAuth() {
           id: session.user.id,
           email: session.user.email!,
           ...(profile || {
-            role: 'parent',
+            role: 'parent' as UserRole,
             full_name: session.user.user_metadata.full_name,
             created_at: session.user.created_at,
             updated_at: session.user.created_at
