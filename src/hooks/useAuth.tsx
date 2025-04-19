@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '@/lib/supabase'; // Updated import path
+import { supabase } from '@/lib/supabase';
 import type { UserRole } from '@/types/database';
 import { toast } from 'sonner';
 
@@ -26,60 +26,87 @@ export function useAuth() {
                      location.pathname === '/';
 
   useEffect(() => {
-    // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        const userData: User = {
-          id: session.user.id,
-          email: session.user.email!,
-          role: 'parent' as UserRole, // Cast to UserRole type
-          full_name: session.user.user_metadata.full_name,
-          created_at: session.user.created_at,
-          updated_at: session.user.created_at
-        };
-        setUser(userData);
-      }
-      setLoading(false);
-    });
-
-    // Listen for changes on auth state
+    let mounted = true;
+    
+    // First, set up the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Only proceed if component is still mounted
+      if (!mounted) return;
+      
       if (session) {
-        // Fetch profile data
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
+        try {
+          // Fetch profile data
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
 
-        const userData: User = {
-          id: session.user.id,
-          email: session.user.email!,
-          ...(profile ? {
-            role: profile.role as UserRole, // Cast string to UserRole type
-            full_name: profile.full_name,
-            created_at: profile.created_at,
-            updated_at: profile.updated_at
-          } : {
-            role: 'parent' as UserRole, // Cast to UserRole type
+          const userData: User = {
+            id: session.user.id,
+            email: session.user.email!,
+            ...(profile ? {
+              role: profile.role as UserRole,
+              full_name: profile.full_name,
+              created_at: profile.created_at,
+              updated_at: profile.updated_at
+            } : {
+              role: 'parent' as UserRole,
+              full_name: session.user.user_metadata.full_name,
+              created_at: session.user.created_at,
+              updated_at: session.user.created_at
+            })
+          };
+          
+          setUser(userData);
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      } else {
+        setUser(null);
+      }
+      
+      if (mounted) {
+        setLoading(false);
+      }
+    });
+    
+    // Then check for existing session
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        // Only proceed if component is still mounted
+        if (!mounted) return;
+        
+        if (session) {
+          const userData: User = {
+            id: session.user.id,
+            email: session.user.email!,
+            role: 'parent' as UserRole,
             full_name: session.user.user_metadata.full_name,
             created_at: session.user.created_at,
             updated_at: session.user.created_at
-          })
-        };
-        
-        setUser(userData);
-      } else {
-        setUser(null);
-        // Only redirect to login if not already on an auth page
-        if (!isAuthPage) {
+          };
+          setUser(userData);
+        } else if (!isAuthPage) {
+          // Only redirect if not on an auth page and no session exists
           navigate('/login');
         }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error("Error checking session:", error);
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
-    });
-
+    };
+    
+    checkSession();
+    
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate, isAuthPage]);
