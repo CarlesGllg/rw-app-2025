@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase'; // Updated import path
 import type { UserRole } from '@/types/database';
 import { toast } from 'sonner';
 
@@ -26,7 +26,7 @@ export function useAuth() {
         const userData: User = {
           id: session.user.id,
           email: session.user.email!,
-          role: 'parent' as UserRole,
+          role: 'parent' as UserRole, // Cast to UserRole type
           full_name: session.user.user_metadata.full_name,
           created_at: session.user.created_at,
           updated_at: session.user.created_at
@@ -49,8 +49,13 @@ export function useAuth() {
         const userData: User = {
           id: session.user.id,
           email: session.user.email!,
-          ...(profile ? profile : {
-            role: 'parent' as UserRole,
+          ...(profile ? {
+            role: profile.role as UserRole, // Cast string to UserRole type
+            full_name: profile.full_name,
+            created_at: profile.created_at,
+            updated_at: profile.updated_at
+          } : {
+            role: 'parent' as UserRole, // Cast to UserRole type
             full_name: session.user.user_metadata.full_name,
             created_at: session.user.created_at,
             updated_at: session.user.created_at
