@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import VerifyCode from "@/components/auth/VerifyCode";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const Verify = () => {
   const location = useLocation();
@@ -25,6 +26,7 @@ const Verify = () => {
       const refreshToken = hashParams.get("refresh_token");
       
       if (accessToken && refreshToken) {
+        toast.success("Verificación exitosa");
         navigate("/dashboard");
       }
     };

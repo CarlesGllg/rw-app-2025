@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -53,7 +52,7 @@ const VerifyCode = ({ email }: VerifyCodeProps) => {
   const resendCode = async () => {
     setIsLoading(true);
     try {
-      // Get the current URL for the redirect
+      // Get the current origin URL for the redirect
       const siteUrl = window.location.origin;
       
       const { error } = await supabase.auth.signInWithOtp({
