@@ -16,6 +16,9 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Get the current URL for the redirect
+  const siteUrl = window.location.origin;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -39,13 +42,14 @@ const LoginForm = () => {
             data: {
               full_name: fullName,
             },
+            emailRedirectTo: `${siteUrl}/verificar`
           },
         });
 
         if (error) throw error;
         
-        toast.success("Cuenta creada exitosamente");
-        setIsLogin(true);
+        navigate('/verify', { state: { email } });
+        toast.success("Por favor revisa tu correo para verificar tu cuenta");
       }
     } catch (error: any) {
       toast.error(error.message || "Error en la autenticación");

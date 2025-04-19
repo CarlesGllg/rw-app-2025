@@ -23,14 +23,15 @@ export function useAuth() {
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        setUser({
+        const userData: User = {
           id: session.user.id,
           email: session.user.email!,
           role: 'parent' as UserRole,
           full_name: session.user.user_metadata.full_name,
           created_at: session.user.created_at,
           updated_at: session.user.created_at
-        });
+        };
+        setUser(userData);
       }
       setLoading(false);
     });
@@ -45,16 +46,18 @@ export function useAuth() {
           .eq('id', session.user.id)
           .maybeSingle();
 
-        setUser({
+        const userData: User = {
           id: session.user.id,
           email: session.user.email!,
-          ...(profile || {
+          ...(profile ? profile : {
             role: 'parent' as UserRole,
             full_name: session.user.user_metadata.full_name,
             created_at: session.user.created_at,
             updated_at: session.user.created_at
           })
-        });
+        };
+        
+        setUser(userData);
       } else {
         setUser(null);
         navigate('/login');

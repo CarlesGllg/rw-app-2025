@@ -4,14 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 type VerifyCodeProps = {
   email: string;
 };
 
 const VerifyCode = ({ email }: VerifyCodeProps) => {
-  const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const navigate = useNavigate();
@@ -31,13 +30,6 @@ const VerifyCode = ({ email }: VerifyCodeProps) => {
           toast.error("Error al cargar el perfil");
           return;
         }
-
-        // Store user data
-        localStorage.setItem("user", JSON.stringify({
-          id: session.user.id,
-          email: session.user.email,
-          ...profile
-        }));
 
         toast.success("Acceso exitoso");
         navigate("/dashboard");
@@ -62,19 +54,22 @@ const VerifyCode = ({ email }: VerifyCodeProps) => {
   const resendCode = async () => {
     setIsLoading(true);
     try {
+      // Get the current URL for the redirect
+      const siteUrl = window.location.origin;
+      
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/verificar`
+          emailRedirectTo: `${siteUrl}/verificar`
         }
       });
       
       if (error) throw error;
       
       setTimeLeft(60);
-      toast.success("Nuevo código enviado a " + email);
+      toast.success("Nuevo enlace enviado a " + email);
     } catch (error: any) {
-      toast.error(error.message || "Error al reenviar el código");
+      toast.error(error.message || "Error al reenviar el enlace");
     } finally {
       setIsLoading(false);
     }
