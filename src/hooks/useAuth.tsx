@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase'; // Updated import path
 import type { UserRole } from '@/types/database';
 import { toast } from 'sonner';
@@ -18,6 +18,12 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Prevent redirect on auth pages
+  const isAuthPage = location.pathname === '/login' || 
+                     location.pathname === '/verificar' || 
+                     location.pathname === '/';
 
   useEffect(() => {
     // Check active sessions and sets the user
@@ -65,7 +71,10 @@ export function useAuth() {
         setUser(userData);
       } else {
         setUser(null);
-        navigate('/login');
+        // Only redirect to login if not already on an auth page
+        if (!isAuthPage) {
+          navigate('/login');
+        }
       }
       setLoading(false);
     });
@@ -73,7 +82,7 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, isAuthPage]);
 
   const signOut = async () => {
     try {
