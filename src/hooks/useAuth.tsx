@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import type { Profile } from '@/types/database';
 import { toast } from 'sonner';
 
@@ -21,10 +21,10 @@ export function useAuth() {
         setUser({
           id: session.user.id,
           email: session.user.email!,
-          role: 'parent', // Default role, will be updated from profile
-          full_name: null,
+          role: 'parent',
+          full_name: session.user.user_metadata.full_name,
           created_at: session.user.created_at,
-          updated_at: session.user.updated_at
+          updated_at: session.user.created_at
         });
       }
       setLoading(false);
@@ -38,21 +38,21 @@ export function useAuth() {
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         setUser({
           id: session.user.id,
           email: session.user.email!,
           ...(profile || {
             role: 'parent',
-            full_name: null,
+            full_name: session.user.user_metadata.full_name,
             created_at: session.user.created_at,
-            updated_at: session.user.updated_at
+            updated_at: session.user.created_at
           })
         });
       } else {
         setUser(null);
-        navigate('/');
+        navigate('/login');
       }
       setLoading(false);
     });
@@ -66,7 +66,7 @@ export function useAuth() {
     try {
       await supabase.auth.signOut();
       setUser(null);
-      navigate('/');
+      navigate('/login');
       toast.success('Sesión cerrada exitosamente');
     } catch (error: any) {
       toast.error('Error al cerrar sesión');
