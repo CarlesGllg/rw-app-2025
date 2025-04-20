@@ -20,6 +20,7 @@ export function useAuth() {
   const navigate = useNavigate();
   const location = useLocation();
   const authCheckedRef = useRef(false);
+  const authInProgressRef = useRef(false);
   
   // Prevent redirect on auth pages
   const isAuthPage = location.pathname === '/login' || 
@@ -27,7 +28,11 @@ export function useAuth() {
                      location.pathname === '/';
 
   useEffect(() => {
+    // Guard to prevent multiple concurrent auth checks
+    if (authInProgressRef.current) return;
+    
     let mounted = true;
+    authInProgressRef.current = true;
     
     // First, set up the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -69,6 +74,8 @@ export function useAuth() {
             } finally {
               if (mounted) {
                 setLoading(false);
+                authCheckedRef.current = true;
+                authInProgressRef.current = false;
               }
             }
           }, 0);
@@ -77,12 +84,19 @@ export function useAuth() {
         if (mounted) {
           setUser(null);
           setLoading(false);
+          authCheckedRef.current = true;
+          authInProgressRef.current = false;
         }
       }
     });
     
-    // Then check for existing session
+    // Then check for existing session - but only if we haven't already checked
     const checkSession = async () => {
+      if (authCheckedRef.current) {
+        authInProgressRef.current = false;
+        return; // Skip if we've already checked auth state
+      }
+      
       try {
         const { data: { session } } = await supabase.auth.getSession();
         
@@ -125,12 +139,14 @@ export function useAuth() {
         if (mounted) {
           setLoading(false);
           authCheckedRef.current = true;
+          authInProgressRef.current = false;
         }
       } catch (error) {
         console.error("Error checking session:", error);
         if (mounted) {
           setLoading(false);
           authCheckedRef.current = true;
+          authInProgressRef.current = false;
         }
       }
     };
@@ -141,7 +157,7 @@ export function useAuth() {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate, isAuthPage]);
+  }, []);
 
   const signOut = async () => {
     try {
