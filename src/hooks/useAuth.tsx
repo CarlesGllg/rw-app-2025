@@ -20,6 +20,7 @@ export function useAuth() {
   const navigate = useNavigate();
   const location = useLocation();
   const redirectedRef = useRef(false);
+  const authCheckedRef = useRef(false);
   
   // Prevent redirect on auth pages
   const isAuthPage = location.pathname === '/login' || 
@@ -36,34 +37,40 @@ export function useAuth() {
       
       if (session) {
         try {
-          // Fetch profile data
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .maybeSingle();
-
-          if (mounted) {
-            const userData: User = {
-              id: session.user.id,
-              email: session.user.email!,
-              ...(profile ? {
-                role: profile.role as UserRole,
-                full_name: profile.full_name,
-                created_at: profile.created_at,
-                updated_at: profile.updated_at
-              } : {
-                role: 'parent' as UserRole,
-                full_name: session.user.user_metadata.full_name,
-                created_at: session.user.created_at,
-                updated_at: session.user.created_at
-              })
-            };
-            
-            setUser(userData);
-          }
+          // Don't fetch profile data in the auth listener to avoid deadlocks
+          setUser({
+            id: session.user.id,
+            email: session.user.email!,
+            role: 'parent' as UserRole,
+            full_name: session.user.user_metadata.full_name,
+            created_at: session.user.created_at,
+            updated_at: session.user.created_at
+          });
+          
+          // Use setTimeout to safely fetch profile data after the auth state is updated
+          setTimeout(async () => {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .maybeSingle();
+                
+              if (mounted && profile) {
+                setUser(prev => ({
+                  ...prev!,
+                  role: profile.role as UserRole,
+                  full_name: profile.full_name,
+                  created_at: profile.created_at,
+                  updated_at: profile.updated_at
+                }));
+              }
+            } catch (error) {
+              console.error("Error fetching user profile in timeout:", error);
+            }
+          }, 0);
         } catch (error) {
-          console.error("Error fetching user profile:", error);
+          console.error("Error in auth state change:", error);
         }
       } else {
         if (mounted) {
@@ -86,47 +93,51 @@ export function useAuth() {
         
         if (session) {
           try {
-            // Fetch profile data
+            // Set basic user data immediately from session
+            setUser({
+              id: session.user.id,
+              email: session.user.email!,
+              role: 'parent' as UserRole,
+              full_name: session.user.user_metadata.full_name,
+              created_at: session.user.created_at,
+              updated_at: session.user.created_at
+            });
+            
+            // Then fetch profile data separately
             const { data: profile } = await supabase
               .from('profiles')
               .select('*')
               .eq('id', session.user.id)
               .maybeSingle();
 
-            const userData: User = {
-              id: session.user.id,
-              email: session.user.email!,
-              ...(profile ? {
+            if (mounted && profile) {
+              setUser(prev => ({
+                ...prev!,
                 role: profile.role as UserRole,
                 full_name: profile.full_name,
                 created_at: profile.created_at,
                 updated_at: profile.updated_at
-              } : {
-                role: 'parent' as UserRole,
-                full_name: session.user.user_metadata.full_name,
-                created_at: session.user.created_at,
-                updated_at: session.user.created_at
-              })
-            };
-            
-            setUser(userData);
+              }));
+            }
           } catch (error) {
             console.error("Error fetching user profile:", error);
           }
         } else {
-          // Only redirect if not on an auth page and no session exists
-          // Use the ref to ensure we only redirect once
-          if (!isAuthPage && !redirectedRef.current) {
+          // Only redirect if not on an auth page, no session exists, and not already redirected
+          // Use the ref to ensure we only consider redirecting once per mount
+          if (!isAuthPage && !redirectedRef.current && authCheckedRef.current) {
             redirectedRef.current = true;
             navigate('/login');
           }
         }
         
+        authCheckedRef.current = true;
         setLoading(false);
       } catch (error) {
         console.error("Error checking session:", error);
         if (mounted) {
           setLoading(false);
+          authCheckedRef.current = true;
         }
       }
     };

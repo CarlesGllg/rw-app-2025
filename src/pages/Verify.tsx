@@ -1,24 +1,28 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import VerifyCode from "@/components/auth/VerifyCode";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Verify = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isVerifying, setIsVerifying] = useState(false);
   const email = location.state?.email;
   
   useEffect(() => {
-    if (!email) {
+    if (!email && !location.hash) {
       navigate("/");
     }
-  }, [email, navigate]);
+  }, [email, navigate, location.hash]);
 
-  // Configuración correcta para aceptar y manejar el código de verificación
+  // Handle verification from email link
   useEffect(() => {
+    if (isVerifying) return; // Prevent multiple verification attempts
+    
     // Comprueba si hay un token hash en la URL (cuando se regresa desde el correo electrónico)
     const handleEmailRedirect = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -26,13 +30,33 @@ const Verify = () => {
       const refreshToken = hashParams.get("refresh_token");
       
       if (accessToken && refreshToken) {
-        toast.success("Verificación exitosa");
-        navigate("/dashboard");
+        setIsVerifying(true);
+        try {
+          // Set the session manually from the URL parameters
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error("Error setting session:", error);
+            toast.error("Error al verificar tu cuenta");
+            return;
+          }
+          
+          toast.success("Verificación exitosa");
+          navigate("/dashboard");
+        } catch (error) {
+          console.error("Error during verification:", error);
+          toast.error("Error al verificar tu cuenta");
+        }
       }
     };
     
-    handleEmailRedirect();
-  }, [navigate]);
+    if (location.hash) {
+      handleEmailRedirect();
+    }
+  }, [location.hash, navigate, isVerifying]);
 
   return (
     <div className="min-h-screen flex flex-col bg-ios-gray">

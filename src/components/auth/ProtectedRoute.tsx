@@ -5,7 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-
+  
+  // Show loading state while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -16,7 +17,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   // Only redirect if the user isn't authenticated
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   return <>{children}</>;
