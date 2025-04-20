@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   // Only redirect if the user isn't authenticated
   if (!user) {
-    // Using replace: true avoids adding to history stack
+    // Using replace: true avoids adding to history stack, preventing loops
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 

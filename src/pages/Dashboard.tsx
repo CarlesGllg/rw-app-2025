@@ -1,6 +1,5 @@
 
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,29 +7,27 @@ import { Bell, Calendar, FileText } from "lucide-react";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const { user } = useAuth();
   
-  useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
-    } else {
-      navigate("/");
-    }
-  }, [navigate]);
-  
-  if (!user) {
-    return null;
-  }
-  
+  // Format the current date in Spanish
   const today = new Date();
   const formattedDate = format(today, "EEEE, d 'de' MMMM yyyy", { locale: es });
   
   // Capitalize first letter
   const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
   
   return (
     <AppLayout title="Inicio">
@@ -40,31 +37,26 @@ const Dashboard = () => {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h2 className="text-2xl font-bold text-ios-darkText">
-                Hola, {user.name?.split(" ")[0] || 'Usuario'}
+                Hola, {user.full_name?.split(" ")[0] || 'Usuario'}
               </h2>
               <p className="text-gray-500 mt-1">{capitalizedDate}</p>
             </div>
             
             <UserAvatar 
-              name={user.name || 'Usuario'} 
+              name={user.full_name || 'Usuario'} 
               role={user.role || 'parent'} 
               showRole={true} 
             />
           </div>
           
-          {user.children && user.children.length > 0 && (
-            <div className="mt-6">
-              <h3 className="font-medium text-gray-700 mb-3">Estudiantes:</h3>
-              <div className="space-y-2">
-                {user.children.map((child: any, index: number) => (
-                  <div key={index} className="flex justify-between bg-gray-50 p-3 rounded-lg">
-                    <span>{child.name}</span>
-                    <span className="text-gray-500">{child.grade}</span>
-                  </div>
-                ))}
-              </div>
+          {/* We'll show children info once that feature is implemented */}
+          {/* For now, let's show a placeholder for future children data */}
+          <div className="mt-6">
+            <h3 className="font-medium text-gray-700 mb-3">Estudiantes:</h3>
+            <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
+              No hay estudiantes vinculados a este perfil
             </div>
-          )}
+          </div>
         </section>
         
         {/* Quick Actions */}
