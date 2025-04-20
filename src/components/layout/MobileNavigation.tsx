@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Bell, FileText, Home, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +8,9 @@ type MobileNavigationProps = {
 };
 
 const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
     <nav className="bg-white fixed bottom-0 left-0 right-0 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] border-t border-gray-100 md:hidden">
       <div className="flex justify-around">
@@ -15,7 +18,7 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           to="/dashboard"
           className={cn(
             "flex flex-col items-center py-3 px-4 text-sm",
-            window.location.pathname === "/dashboard"
+            currentPath === "/dashboard"
               ? "text-ios-blue"
               : "text-gray-600"
           )}
@@ -27,7 +30,7 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           to="/messages"
           className={cn(
             "flex flex-col items-center py-3 px-4 text-sm relative",
-            window.location.pathname === "/messages"
+            currentPath === "/messages"
               ? "text-ios-blue"
               : "text-gray-600"
           )}
@@ -44,7 +47,7 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           to="/documents"
           className={cn(
             "flex flex-col items-center py-3 px-4 text-sm",
-            window.location.pathname === "/documents"
+            currentPath === "/documents"
               ? "text-ios-blue"
               : "text-gray-600"
           )}
@@ -56,7 +59,7 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           to="/profile"
           className={cn(
             "flex flex-col items-center py-3 px-4 text-sm",
-            window.location.pathname === "/profile"
+            currentPath === "/profile"
               ? "text-ios-blue"
               : "text-gray-600"
           )}

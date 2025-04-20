@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Bell, FileText, Home, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,9 @@ type DesktopSidebarProps = {
 };
 
 const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   const NavItem = ({
     to,
     icon: Icon,
@@ -21,7 +24,7 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
     label: string;
     badge?: number;
   }) => {
-    const isActive = window.location.pathname === to;
+    const isActive = currentPath === to;
     
     return (
       <Link

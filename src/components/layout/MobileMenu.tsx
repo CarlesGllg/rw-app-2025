@@ -3,7 +3,7 @@ import { Bell, FileText, Home, LogOut, Menu, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 type MobileMenuProps = {
   unreadNotifications: number;
@@ -11,6 +11,9 @@ type MobileMenuProps = {
 };
 
 const MobileMenu = ({ unreadNotifications, onLogout }: MobileMenuProps) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   const NavItem = ({
     to,
     icon: Icon,
@@ -22,7 +25,7 @@ const MobileMenu = ({ unreadNotifications, onLogout }: MobileMenuProps) => {
     label: string;
     badge?: number;
   }) => {
-    const isActive = window.location.pathname === to;
+    const isActive = currentPath === to;
     
     return (
       <Link

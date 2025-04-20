@@ -1,6 +1,6 @@
 
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import type { UserRole } from '@/types/database';
 import { toast } from 'sonner';
@@ -18,15 +18,9 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const location = useLocation();
   const authCheckedRef = useRef(false);
   const authInProgressRef = useRef(false);
   
-  // Prevent redirect on auth pages
-  const isAuthPage = location.pathname === '/login' || 
-                     location.pathname === '/verificar' || 
-                     location.pathname === '/';
-
   useEffect(() => {
     // Guard to prevent multiple concurrent auth checks
     if (authInProgressRef.current) return;
@@ -94,7 +88,7 @@ export function useAuth() {
     const checkSession = async () => {
       if (authCheckedRef.current) {
         authInProgressRef.current = false;
-        return; // Skip if we've already checked auth state
+        return;
       }
       
       try {
@@ -163,7 +157,7 @@ export function useAuth() {
     try {
       await supabase.auth.signOut();
       setUser(null);
-      navigate('/login');
+      navigate('/login', { replace: true });
       toast.success('Sesión cerrada exitosamente');
     } catch (error: any) {
       toast.error('Error al cerrar sesión');
