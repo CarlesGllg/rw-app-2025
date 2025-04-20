@@ -1,5 +1,5 @@
 
-import { Bell, FileText, Home, LogOut, User, X } from "lucide-react";
+import { Bell, FileText, Home, LogOut, Menu, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
