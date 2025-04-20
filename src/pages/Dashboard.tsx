@@ -40,14 +40,14 @@ const Dashboard = () => {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <h2 className="text-2xl font-bold text-ios-darkText">
-                Hola, {user.name.split(" ")[0]}
+                Hola, {user.name?.split(" ")[0] || 'Usuario'}
               </h2>
               <p className="text-gray-500 mt-1">{capitalizedDate}</p>
             </div>
             
             <UserAvatar 
-              name={user.name} 
-              role={user.role} 
+              name={user.name || 'Usuario'} 
+              role={user.role || 'parent'} 
               showRole={true} 
             />
           </div>
@@ -74,7 +74,7 @@ const Dashboard = () => {
             <Button
               variant="outline"
               className="h-auto py-4 flex flex-col items-center justify-center gap-2 border border-gray-200 rounded-xl hover:bg-gray-50"
-              onClick={() => navigate("/mensajes")}
+              onClick={() => navigate("/messages")}
             >
               <Bell className="h-6 w-6 text-ios-blue" />
               <span>Mensajes</span>
@@ -83,7 +83,7 @@ const Dashboard = () => {
             <Button
               variant="outline" 
               className="h-auto py-4 flex flex-col items-center justify-center gap-2 border border-gray-200 rounded-xl hover:bg-gray-50"
-              onClick={() => navigate("/documentos")}
+              onClick={() => navigate("/documents")}
             >
               <FileText className="h-6 w-6 text-ios-blue" />
               <span>Documentos</span>
@@ -99,7 +99,7 @@ const Dashboard = () => {
               variant="ghost"
               size="sm"
               className="text-ios-blue"
-              onClick={() => navigate("/mensajes")}
+              onClick={() => navigate("/messages")}
             >
               Ver Todos
             </Button>
@@ -123,7 +123,7 @@ const Dashboard = () => {
                   variant="ghost" 
                   size="sm" 
                   className="text-ios-blue hover:text-ios-blue hover:bg-ios-blue/10"
-                  onClick={() => navigate("/mensajes")}
+                  onClick={() => navigate("/messages")}
                 >
                   Leer más
                 </Button>

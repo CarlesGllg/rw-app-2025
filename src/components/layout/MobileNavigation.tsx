@@ -24,10 +24,10 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           <span>Inicio</span>
         </Link>
         <Link
-          to="/mensajes"
+          to="/messages"
           className={cn(
             "flex flex-col items-center py-3 px-4 text-sm relative",
-            window.location.pathname === "/mensajes"
+            window.location.pathname === "/messages"
               ? "text-ios-blue"
               : "text-gray-600"
           )}
@@ -41,10 +41,10 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           )}
         </Link>
         <Link
-          to="/documentos"
+          to="/documents"
           className={cn(
             "flex flex-col items-center py-3 px-4 text-sm",
-            window.location.pathname === "/documentos"
+            window.location.pathname === "/documents"
               ? "text-ios-blue"
               : "text-gray-600"
           )}
@@ -53,10 +53,10 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           <span>Documentos</span>
         </Link>
         <Link
-          to="/perfil"
+          to="/profile"
           className={cn(
             "flex flex-col items-center py-3 px-4 text-sm",
-            window.location.pathname === "/perfil"
+            window.location.pathname === "/profile"
               ? "text-ios-blue"
               : "text-gray-600"
           )}
@@ -70,4 +70,3 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
 };
 
 export default MobileNavigation;
-

@@ -35,7 +35,7 @@ const App = () => (
             }
           />
           <Route
-            path="/mensajes"
+            path="/messages"
             element={
               <ProtectedRoute>
                 <Messages />
@@ -43,7 +43,7 @@ const App = () => (
             }
           />
           <Route
-            path="/documentos"
+            path="/documents"
             element={
               <ProtectedRoute>
                 <Documents />
@@ -51,7 +51,7 @@ const App = () => (
             }
           />
           <Route
-            path="/perfil"
+            path="/profile"
             element={
               <ProtectedRoute>
                 <Profile />

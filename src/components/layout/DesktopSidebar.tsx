@@ -54,13 +54,13 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
       <div className="p-4 space-y-1">
         <NavItem to="/dashboard" icon={Home} label="Inicio" />
         <NavItem
-          to="/mensajes"
+          to="/messages"
           icon={Bell}
           label="Mensajes"
           badge={unreadNotifications}
         />
-        <NavItem to="/documentos" icon={FileText} label="Documentos" />
-        <NavItem to="/perfil" icon={User} label="Perfil" />
+        <NavItem to="/documents" icon={FileText} label="Documentos" />
+        <NavItem to="/profile" icon={User} label="Perfil" />
       </div>
       
       <div className="absolute bottom-8 left-6 right-6">
@@ -78,4 +78,3 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
 };
 
 export default DesktopSidebar;
-
