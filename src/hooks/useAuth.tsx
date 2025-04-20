@@ -19,7 +19,6 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectedRef = useRef(false);
   const authCheckedRef = useRef(false);
   
   // Prevent redirect on auth pages
@@ -31,13 +30,13 @@ export function useAuth() {
     let mounted = true;
     
     // First, set up the auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       // Only proceed if component is still mounted
       if (!mounted) return;
       
-      if (session) {
-        try {
-          // Don't fetch profile data in the auth listener to avoid deadlocks
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session) {
+          // Set basic user data immediately from session
           setUser({
             id: session.user.id,
             email: session.user.email!,
@@ -67,19 +66,18 @@ export function useAuth() {
               }
             } catch (error) {
               console.error("Error fetching user profile in timeout:", error);
+            } finally {
+              if (mounted) {
+                setLoading(false);
+              }
             }
           }, 0);
-        } catch (error) {
-          console.error("Error in auth state change:", error);
         }
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         if (mounted) {
           setUser(null);
+          setLoading(false);
         }
-      }
-      
-      if (mounted) {
-        setLoading(false);
       }
     });
     
@@ -122,17 +120,12 @@ export function useAuth() {
           } catch (error) {
             console.error("Error fetching user profile:", error);
           }
-        } else {
-          // Only redirect if not on an auth page, no session exists, and not already redirected
-          // Use the ref to ensure we only consider redirecting once per mount
-          if (!isAuthPage && !redirectedRef.current && authCheckedRef.current) {
-            redirectedRef.current = true;
-            navigate('/login');
-          }
         }
         
-        authCheckedRef.current = true;
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          authCheckedRef.current = true;
+        }
       } catch (error) {
         console.error("Error checking session:", error);
         if (mounted) {
