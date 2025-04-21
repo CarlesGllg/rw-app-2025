@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { AlertCircle, Bell, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,8 @@ type Message = {
   priority: "high" | "medium" | "low";
   read: boolean;
   student_id: string;
+  student_first_name: string;
+  student_last_name1: string;
 };
 
 type MessageCardProps = {
@@ -69,7 +71,7 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
                 message.read && "text-gray-700"
               )}
             >
-              {message.title}
+              ({message.student_first_name} {message.student_last_name1}) {message.title}
             </h3>
           </div>
 

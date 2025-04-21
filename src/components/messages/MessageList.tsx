@@ -11,6 +11,8 @@ type Message = {
   priority: "low" | "medium" | "high";
   read: boolean;
   student_id: string;
+  student_first_name: string;
+  student_last_name1: string;
 };
 
 const MessageList = () => {
@@ -25,7 +27,6 @@ const MessageList = () => {
         console.error("Error al obtener usuario:", error.message);
         return;
       }
-      console.log("Parent ID:", data.user.id);
       setParentId(data.user.id);
     };
 
@@ -51,7 +52,6 @@ const MessageList = () => {
         }
 
         const studentIds = studentData.map((row) => row.student_id);
-        console.log("Estudiantes vinculados:", studentIds);
 
         if (studentIds.length === 0) {
           setMessages([]);
@@ -59,10 +59,10 @@ const MessageList = () => {
           return;
         }
 
-        // Obtener relaciones mensaje-estudiante
+        // Obtener relaciones mensaje-estudiante con datos del estudiante
         const { data: messageLinks, error: messageError } = await supabase
           .from("message_student")
-          .select("read, student_id, message_id")
+          .select("read, student_id, message_id, students (first_name, last_name1)")
           .in("student_id", studentIds)
           .order("message_id", { ascending: false });
 
@@ -72,13 +72,9 @@ const MessageList = () => {
           return;
         }
 
-        console.log("messageLinks:", messageLinks);
-
         const messageIds = messageLinks.map((link) => link.message_id);
-        console.log("IDs de mensajes:", messageIds);
-        console.log("Tipos de IDs:", messageIds.map((id) => typeof id)); // ← debug extra
 
-        // ✅ Alternativa: obtener TODOS los mensajes y filtrar localmente
+        // Obtener todos los mensajes y filtrar por los vinculados
         const { data: allMessagesData, error: allMessagesError } = await supabase
           .from("messages")
           .select("id, title, content, date, sender, priority");
@@ -89,19 +85,15 @@ const MessageList = () => {
           return;
         }
 
-        console.log("Todos los mensajes:", allMessagesData);
-
         const filteredMessages = allMessagesData?.filter((msg) =>
           messageIds.includes(msg.id)
         );
 
-        console.log("Mensajes filtrados localmente:", filteredMessages);
-
-        // Combinar con datos de lectura
+        // Formatear mensajes combinando info de mensajes y estudiantes
         const formattedMessages: Message[] = messageLinks
           .map((link) => {
             const message = filteredMessages.find((msg) => msg.id === link.message_id);
-            if (message) {
+            if (message && link.students) {
               return {
                 id: message.id,
                 title: message.title,
@@ -111,13 +103,13 @@ const MessageList = () => {
                 priority: message.priority as "low" | "medium" | "high",
                 read: link.read,
                 student_id: link.student_id,
+                student_first_name: link.students.first_name,
+                student_last_name1: link.students.last_name1,
               };
             }
             return null;
           })
           .filter((msg): msg is Message => msg !== null);
-
-        console.log("Mensajes formateados:", formattedMessages);
 
         setMessages(formattedMessages);
       } catch (error) {

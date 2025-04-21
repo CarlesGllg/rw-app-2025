@@ -40,7 +40,7 @@ const Dashboard = () => {
           if (studentIds.length > 0) {
             const { data: studentData, error: studentError } = await supabase
               .from("students")
-              .select("id, first_name") // Seleccionamos el nombre de los estudiantes
+              .select("id, first_name, last_name1") // Seleccionamos el nombre de los estudiantes
               .in("id", studentIds); // Filtramos por los IDs de los estudiantes
 
             if (studentError) {
@@ -93,7 +93,7 @@ const Dashboard = () => {
               <div className="space-y-2">
                 {students.map((student) => (
                   <div key={student.id} className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
-                    {student.first_name} {/* Mostrar el nombre del estudiante */}
+                    {student.first_name} {student.last_name1}{/* Mostrar el nombre del estudiante */}
                   </div>
                 ))}
               </div>
