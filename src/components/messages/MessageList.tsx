@@ -1,79 +1,178 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MessageCard from "./MessageCard";
+import { supabase } from "@/lib/supabase";
 
-// Sample data for messages
-const MESSAGES = [
-  {
-    id: "1",
-    title: "Suspensión de clases - 20 Abril",
-    content: "Estimados padres, les informamos que este viernes 20 de abril se suspenderán las clases debido a una jornada de capacitación docente. Los alumnos no deben asistir al colegio.",
-    date: "2025-04-16T10:30:00",
-    sender: "Dirección Académica",
-    priority: "high" as const,
-    read: false
-  },
-  {
-    id: "2",
-    title: "Programa especial Día de las Madres",
-    content: "Invitamos a todas las madres al programa especial que se realizará el próximo 10 de mayo en el auditorio escolar. El horario será de 10:00 AM a 12:00 PM. ¡Las esperamos para celebrar juntos!",
-    date: "2025-04-15T14:45:00",
-    sender: "Coordinación de Eventos",
-    priority: "medium" as const,
-    read: false
-  },
-  {
-    id: "3",
-    title: "Entrega de calificaciones - Primer Trimestre",
-    content: "Se informa que la entrega de calificaciones del primer trimestre se realizará del 22 al 26 de abril. Favor de agendar su cita con el tutor de grupo a través de la plataforma escolar.",
-    date: "2025-04-10T09:15:00",
-    sender: "Servicios Escolares",
-    priority: "medium" as const,
-    read: true
-  },
-  {
-    id: "4",
-    title: "Actualización de datos personales",
-    content: "Solicitamos amablemente actualizar sus datos de contacto en el sistema escolar antes del 30 de abril. Es importante mantener información actualizada para casos de emergencia.",
-    date: "2025-04-05T11:20:00",
-    sender: "Administración",
-    priority: "low" as const,
-    read: true
-  },
-  {
-    id: "5",
-    title: "Medidas de seguridad - Entrada y salida",
-    content: "Recordamos a los padres respetar los horarios y procedimientos de entrada y salida. Por seguridad de todos los alumnos, no se permitirá la salida con personas no autorizadas.",
-    date: "2025-03-28T16:00:00",
-    sender: "Seguridad Escolar",
-    priority: "high" as const,
-    read: true
-  }
-];
+type Message = {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  sender: string;
+  priority: "low" | "medium" | "high";
+  read: boolean;
+  student_id: string;
+};
 
 const MessageList = () => {
-  const [messages, setMessages] = useState(MESSAGES);
-  
-  const markAsRead = (id: string) => {
-    setMessages(messages.map(msg => 
-      msg.id === id ? { ...msg, read: true } : msg
-    ));
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [parentId, setParentId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Error al obtener usuario:", error.message);
+        return;
+      }
+      console.log("Parent ID:", data.user.id);
+      setParentId(data.user.id);
+    };
+
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!parentId) return;
+      setLoading(true);
+
+      try {
+        // Obtener estudiantes del padre
+        const { data: studentData, error: studentError } = await supabase
+          .from("student_parent")
+          .select("student_id")
+          .eq("parent_id", parentId);
+
+        if (studentError) {
+          console.error("Error al obtener estudiantes:", studentError.message);
+          setLoading(false);
+          return;
+        }
+
+        const studentIds = studentData.map((row) => row.student_id);
+        console.log("Estudiantes vinculados:", studentIds);
+
+        if (studentIds.length === 0) {
+          setMessages([]);
+          setLoading(false);
+          return;
+        }
+
+        // Obtener relaciones mensaje-estudiante
+        const { data: messageLinks, error: messageError } = await supabase
+          .from("message_student")
+          .select("read, student_id, message_id")
+          .in("student_id", studentIds)
+          .order("message_id", { ascending: false });
+
+        if (messageError) {
+          console.error("Error al obtener relaciones mensaje-estudiante:", messageError.message);
+          setLoading(false);
+          return;
+        }
+
+        console.log("messageLinks:", messageLinks);
+
+        const messageIds = messageLinks.map((link) => link.message_id);
+        console.log("IDs de mensajes:", messageIds);
+        console.log("Tipos de IDs:", messageIds.map((id) => typeof id)); // ← debug extra
+
+        // ✅ Alternativa: obtener TODOS los mensajes y filtrar localmente
+        const { data: allMessagesData, error: allMessagesError } = await supabase
+          .from("messages")
+          .select("id, title, content, date, sender, priority");
+
+        if (allMessagesError) {
+          console.error("Error al obtener mensajes:", allMessagesError.message);
+          setLoading(false);
+          return;
+        }
+
+        console.log("Todos los mensajes:", allMessagesData);
+
+        const filteredMessages = allMessagesData?.filter((msg) =>
+          messageIds.includes(msg.id)
+        );
+
+        console.log("Mensajes filtrados localmente:", filteredMessages);
+
+        // Combinar con datos de lectura
+        const formattedMessages: Message[] = messageLinks
+          .map((link) => {
+            const message = filteredMessages.find((msg) => msg.id === link.message_id);
+            if (message) {
+              return {
+                id: message.id,
+                title: message.title,
+                content: message.content,
+                date: new Date(message.date).toISOString(),
+                sender: message.sender,
+                priority: message.priority as "low" | "medium" | "high",
+                read: link.read,
+                student_id: link.student_id,
+              };
+            }
+            return null;
+          })
+          .filter((msg): msg is Message => msg !== null);
+
+        console.log("Mensajes formateados:", formattedMessages);
+
+        setMessages(formattedMessages);
+      } catch (error) {
+        console.error("Error general al cargar los mensajes:", error);
+      }
+
+      setLoading(false);
+    };
+
+    fetchMessages();
+  }, [parentId]);
+
+  const markAsRead = async (id: string, student_id: string) => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === id && msg.student_id === student_id ? { ...msg, read: true } : msg
+      )
+    );
+
+    const { error } = await supabase
+      .from("message_student")
+      .update({ read: true })
+      .eq("message_id", id)
+      .eq("student_id", student_id);
+
+    if (error) {
+      console.error("Error al marcar como leído:", error.message);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[200px] flex justify-center items-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (messages.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">No hay mensajes disponibles</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      {messages.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No hay mensajes disponibles</p>
-        </div>
-      ) : (
-        messages.map((message) => (
-          <MessageCard 
-            key={message.id} 
-            message={message} 
-            onMarkAsRead={markAsRead}
-          />
-        ))
-      )}
+      {messages.map((message) => (
+        <MessageCard
+          key={`${message.id}-${message.student_id}`}
+          message={message}
+          onMarkAsRead={() => markAsRead(message.id, message.student_id)}
+        />
+      ))}
     </div>
   );
 };
