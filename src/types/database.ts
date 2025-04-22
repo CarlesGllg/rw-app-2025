@@ -1,4 +1,3 @@
-
 export type UserRole = 'admin' | 'school' | 'parent';
 export type MessagePriority = 'low' | 'medium' | 'high';
 export type DocumentType = 'pdf' | 'doc' | 'xls' | 'other';
@@ -39,4 +38,13 @@ export interface MessageRead {
   message_id: string;
   user_id: string;
   created_at: string;
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string | null;
+  start_date: string;
+  created_at: string | null;
+  updated_at: string | null;
 }

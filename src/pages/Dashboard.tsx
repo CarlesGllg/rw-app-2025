@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, Calendar, FileText } from "lucide-react";
+import { Bell, FileText } from "lucide-react";
 import UserAvatar from "@/components/ui/UserAvatar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import MessageCard from "@/components/messages/MessageCard";
+import { Event } from "@/types/database";
 
 type RecentMessage = {
   id: string;
@@ -17,7 +18,7 @@ type RecentMessage = {
   content: string;
   date: string;
   sender: string;
-  priority: string;
+  priority: "low" | "medium" | "high";
   student_id: string;
   student_first_name: string;
   student_last_name1: string;
@@ -29,6 +30,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [students, setStudents] = useState<any[]>([]);
   const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
   const today = new Date();
@@ -94,6 +96,25 @@ const Dashboard = () => {
 
     fetchRecentMessages();
   }, [user]);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const { data: events, error } = await supabase
+          .from("events")
+          .select("*")
+          .order("start_date", { ascending: true })
+          .limit(3);
+
+        if (error) throw error;
+        if (events) setEvents(events);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -253,27 +274,26 @@ const Dashboard = () => {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100">
-              <div className="h-12 w-12 flex flex-col items-center justify-center bg-ios-blue/10 text-ios-blue rounded-lg">
-                <span className="text-xs">ABR</span>
-                <span className="font-bold">20</span>
-              </div>
-              <div>
-                <h4 className="font-medium">Suspensión de clases</h4>
-                <p className="text-xs text-gray-500">Jornada de capacitación docente</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100">
-              <div className="h-12 w-12 flex flex-col items-center justify-center bg-ios-blue/10 text-ios-blue rounded-lg">
-                <span className="text-xs">MAY</span>
-                <span className="font-bold">10</span>
-              </div>
-              <div>
-                <h4 className="font-medium">Día de las Madres</h4>
-                <p className="text-xs text-gray-500">Programa especial - 10:00 AM</p>
-              </div>
-            </div>
+            {events.length > 0 ? (
+              events.map((event) => (
+                <div key={event.id} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100">
+                  <div className="h-12 w-12 flex flex-col items-center justify-center bg-ios-blue/10 text-ios-blue rounded-lg">
+                    <span className="text-xs">{format(new Date(event.start_date), "MMM", { locale: es }).toUpperCase()}</span>
+                    <span className="font-bold">{format(new Date(event.start_date), "d")}</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium">{event.title}</h4>
+                    <p className="text-xs text-gray-500">{event.description}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <Card>
+                <CardContent className="py-6 text-center text-gray-500">
+                  No hay eventos próximos
+                </CardContent>
+              </Card>
+            )}
           </div>
         </section>
       </div>
