@@ -9,6 +9,7 @@ import { es } from "date-fns/locale";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import MessageCard from "@/components/messages/MessageCard";
 
 type RecentMessage = {
   id: string;
@@ -17,6 +18,10 @@ type RecentMessage = {
   date: string;
   sender: string;
   priority: string;
+  student_id: string;
+  student_first_name: string;
+  student_last_name1: string;
+  read: boolean;
 };
 
 const Dashboard = () => {
@@ -46,7 +51,15 @@ const Dashboard = () => {
 
         const { data: messageLinks } = await supabase
           .from("message_student")
-          .select("message_id")
+          .select(`
+            message_id,
+            read,
+            student_id,
+            students!inner (
+              first_name,
+              last_name1
+            )
+          `)
           .in("student_id", studentIds)
           .order("created_at", { ascending: false })
           .limit(3);
@@ -62,7 +75,17 @@ const Dashboard = () => {
           .order("date", { ascending: false });
 
         if (messages) {
-          setRecentMessages(messages);
+          const formattedMessages = messages.map(message => {
+            const messageLink = messageLinks.find(link => link.message_id === message.id);
+            return {
+              ...message,
+              student_id: messageLink?.student_id || "",
+              student_first_name: messageLink?.students.first_name || "",
+              student_last_name1: messageLink?.students.last_name1 || "",
+              read: messageLink?.read || false,
+            };
+          });
+          setRecentMessages(formattedMessages);
         }
       } catch (error) {
         console.error("Error fetching recent messages:", error);
@@ -113,6 +136,24 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  const handleMarkAsRead = async (messageId: string, studentId: string) => {
+    try {
+      await supabase
+        .from("message_student")
+        .update({ read: true })
+        .eq("message_id", messageId)
+        .eq("student_id", studentId);
+
+      setRecentMessages(prevMessages =>
+        prevMessages.map(msg =>
+          msg.id === messageId ? { ...msg, read: true } : msg
+        )
+      );
+    } catch (error) {
+      console.error("Error marking message as read:", error);
+    }
+  };
 
   return (
     <AppLayout title="Inicio">
@@ -190,31 +231,11 @@ const Dashboard = () => {
           {recentMessages.length > 0 ? (
             <div className="space-y-4">
               {recentMessages.map((message) => (
-                <Card key={message.id}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">
-                      {message.title}
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                      {message.sender} • {format(new Date(message.date), "d 'de' MMMM, yyyy", { locale: es })}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm line-clamp-2">
-                      {message.content}
-                    </p>
-                    <div className="mt-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-ios-blue hover:text-ios-blue hover:bg-ios-blue/10"
-                        onClick={() => navigate("/messages")}
-                      >
-                        Leer más
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <MessageCard
+                  key={message.id}
+                  message={message}
+                  onMarkAsRead={handleMarkAsRead}
+                />
               ))}
             </div>
           ) : (
