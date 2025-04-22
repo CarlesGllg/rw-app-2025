@@ -10,46 +10,94 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
+type RecentMessage = {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  sender: string;
+  priority: string;
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [students, setStudents] = useState<any[]>([]); // Aquí almacenamos los estudiantes vinculados
+  const [students, setStudents] = useState<any[]>([]);
+  const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Formatear la fecha actual en español
   const today = new Date();
   const formattedDate = format(today, "EEEE, d 'de' MMMM yyyy", { locale: es });
-
-  // Capitalizar la primera letra
   const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+
+  useEffect(() => {
+    const fetchRecentMessages = async () => {
+      if (!user) return;
+
+      try {
+        const { data: studentData } = await supabase
+          .from("student_parent")
+          .select("student_id")
+          .eq("parent_id", user.id);
+
+        if (!studentData?.length) return;
+
+        const studentIds = studentData.map(row => row.student_id);
+
+        const { data: messageLinks } = await supabase
+          .from("message_student")
+          .select("message_id")
+          .in("student_id", studentIds)
+          .order("created_at", { ascending: false })
+          .limit(3);
+
+        if (!messageLinks?.length) return;
+
+        const messageIds = messageLinks.map(link => link.message_id);
+
+        const { data: messages } = await supabase
+          .from("messages")
+          .select("*")
+          .in("id", messageIds)
+          .order("date", { ascending: false });
+
+        if (messages) {
+          setRecentMessages(messages);
+        }
+      } catch (error) {
+        console.error("Error fetching recent messages:", error);
+      }
+    };
+
+    fetchRecentMessages();
+  }, [user]);
 
   useEffect(() => {
     const fetchStudents = async () => {
       if (user) {
-        // Hacer una consulta a la tabla student_parent para obtener los estudiantes vinculados al padre
         const { data, error } = await supabase
           .from("student_parent")
-          .select("student_id") // Seleccionamos los IDs de los estudiantes asociados
-          .eq("parent_id", user.id); // Filtramos por el parent_id del usuario autenticado
+          .select("student_id")
+          .eq("parent_id", user.id);
 
         if (error) {
           console.error("Error fetching student-parent data:", error.message);
         } else {
-          // Obtener los estudiantes basados en los IDs de la consulta anterior
           const studentIds = data.map((row: any) => row.student_id);
 
           if (studentIds.length > 0) {
             const { data: studentData, error: studentError } = await supabase
               .from("students")
-              .select("id, first_name, last_name1") // Seleccionamos el nombre de los estudiantes
-              .in("id", studentIds); // Filtramos por los IDs de los estudiantes
+              .select("id, first_name, last_name1")
+              .in("id", studentIds);
 
             if (studentError) {
               console.error("Error fetching students:", studentError.message);
             } else {
-              setStudents(studentData); // Asignamos los estudiantes a la variable de estado
+              setStudents(studentData);
             }
           } else {
-            setStudents([]); // Si no hay estudiantes, vaciamos el estado
+            setStudents([]);
           }
         }
       }
@@ -69,7 +117,6 @@ const Dashboard = () => {
   return (
     <AppLayout title="Inicio">
       <div className="space-y-6">
-        {/* Sección de Bienvenida */}
         <section className="ios-card p-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
@@ -86,14 +133,13 @@ const Dashboard = () => {
             />
           </div>
 
-          {/* Mostrar los estudiantes vinculados */}
           <div className="mt-6">
             <h3 className="font-medium text-gray-700 mb-3">Estudiantes:</h3>
             {students.length > 0 ? (
               <div className="space-y-2">
                 {students.map((student) => (
                   <div key={student.id} className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
-                    {student.first_name} {student.last_name1}{/* Mostrar el nombre del estudiante */}
+                    {student.first_name} {student.last_name1}
                   </div>
                 ))}
               </div>
@@ -105,7 +151,6 @@ const Dashboard = () => {
           </div>
         </section>
 
-        {/* Acciones rápidas */}
         <section>
           <h3 className="font-medium text-gray-700 mb-3">Acciones Rápidas</h3>
           <div className="grid grid-cols-2 gap-4">
@@ -129,7 +174,6 @@ const Dashboard = () => {
           </div>
         </section>
 
-        {/* Mensajes recientes */}
         <section>
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-medium text-gray-700">Mensajes Recientes</h3>
@@ -143,34 +187,45 @@ const Dashboard = () => {
             </Button>
           </div>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">
-                Suspensión de clases - 20 Abril
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Dirección Académica • 16 de abril, 2025
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm line-clamp-2">
-                Estimados padres, les informamos que este viernes 20 de abril se suspenderán las clases debido a una jornada de capacitación docente...
-              </p>
-              <div className="mt-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-ios-blue hover:text-ios-blue hover:bg-ios-blue/10"
-                  onClick={() => navigate("/messages")}
-                >
-                  Leer más
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {recentMessages.length > 0 ? (
+            <div className="space-y-4">
+              {recentMessages.map((message) => (
+                <Card key={message.id}>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">
+                      {message.title}
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      {message.sender} • {format(new Date(message.date), "d 'de' MMMM, yyyy", { locale: es })}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm line-clamp-2">
+                      {message.content}
+                    </p>
+                    <div className="mt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-ios-blue hover:text-ios-blue hover:bg-ios-blue/10"
+                        onClick={() => navigate("/messages")}
+                      >
+                        Leer más
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="py-6 text-center text-gray-500">
+                No hay mensajes recientes
+              </CardContent>
+            </Card>
+          )}
         </section>
 
-        {/* Vista previa del calendario escolar */}
         <section>
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-medium text-gray-700">Próximos Eventos</h3>
