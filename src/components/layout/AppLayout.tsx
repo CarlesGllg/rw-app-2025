@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -7,6 +6,8 @@ import MobileNavigation from "./MobileNavigation";
 import DesktopSidebar from "./DesktopSidebar";
 import MobileMenu from "./MobileMenu";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { supabase } from "@/lib/supabase";
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -14,12 +15,33 @@ type AppLayoutProps = {
 };
 
 const AppLayout = ({ children, title }: AppLayoutProps) => {
-  const [unreadNotifications, setUnreadNotifications] = useState(2);
   const { user, signOut } = useAuth();
+  const unreadMessages = useUnreadMessages();
   
-  const markAllAsRead = () => {
-    setUnreadNotifications(0);
-    toast.success("Todas las notificaciones marcadas como leídas");
+  const markAllAsRead = async () => {
+    if (!user) return;
+
+    try {
+      const { data: studentData } = await supabase
+        .from("student_parent")
+        .select("student_id")
+        .eq("parent_id", user.id);
+
+      if (!studentData?.length) return;
+
+      const studentIds = studentData.map(row => row.student_id);
+
+      await supabase
+        .from("message_student")
+        .update({ read: true })
+        .in("student_id", studentIds)
+        .eq("read", false);
+
+      toast.success("Todas las notificaciones marcadas como leídas");
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+      toast.error("Error al marcar las notificaciones como leídas");
+    }
   };
 
   return (
@@ -28,14 +50,14 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="ios-container py-4 flex justify-between items-center">
           <MobileMenu 
-            unreadNotifications={unreadNotifications}
+            unreadNotifications={unreadMessages}
             onLogout={signOut}
           />
 
           <h1 className="font-semibold text-xl text-ios-darkText">{title}</h1>
           
           <div className="flex items-center space-x-2">
-            {unreadNotifications > 0 && (
+            {unreadMessages > 0 && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -44,7 +66,7 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
               >
                 <Bell size={20} />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {unreadNotifications}
+                  {unreadMessages}
                 </span>
               </Button>
             )}
@@ -58,11 +80,11 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
       </main>
 
       {/* Mobile Navigation */}
-      <MobileNavigation unreadNotifications={unreadNotifications} />
+      <MobileNavigation unreadNotifications={unreadMessages} />
 
       {/* Desktop Sidebar */}
       <DesktopSidebar 
-        unreadNotifications={unreadNotifications}
+        unreadNotifications={unreadMessages}
         onLogout={signOut}
       />
       
