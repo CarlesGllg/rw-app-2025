@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { phone, mail } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Office = "sabadell" | "terrassa";
@@ -35,9 +35,7 @@ const ContactSection = () => {
               href={`tel:${CONTACTS.sabadell.phoneHref}`}
               className="flex items-center gap-2 text-ios-blue hover:underline"
             >
-              <span>
-                {phone({ size: 20 })}
-              </span>
+              <Phone size={20} />
               {CONTACTS.sabadell.name}:{" "}
               <span className="font-mono">{CONTACTS.sabadell.phone}</span>
             </a>
@@ -45,9 +43,7 @@ const ContactSection = () => {
               href={`tel:${CONTACTS.terrassa.phoneHref}`}
               className="flex items-center gap-2 text-ios-blue hover:underline"
             >
-              <span>
-                {phone({ size: 20 })}
-              </span>
+              <Phone size={20} />
               {CONTACTS.terrassa.name}:{" "}
               <span className="font-mono">{CONTACTS.terrassa.phone}</span>
             </a>
@@ -76,9 +72,7 @@ const ContactSection = () => {
             href={`mailto:${CONTACTS[selected].email}`}
             className="flex items-center gap-2 text-ios-blue hover:underline"
           >
-            <span>
-              {mail({ size: 20 })}
-            </span>
+            <Mail size={20} />
             Enviar correo a <span className="underline">{CONTACTS[selected].name}</span>
           </a>
         </div>
