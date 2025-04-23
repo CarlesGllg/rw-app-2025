@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,6 +7,7 @@ import StudentList from "@/components/dashboard/StudentList";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RecentMessages from "@/components/dashboard/RecentMessages";
 import UpcomingEvents from "@/components/dashboard/UpcomingEvents";
+import ContactSection from "@/components/dashboard/ContactSection";
 import type { Event, MessagePriority } from "@/types/database";
 
 type RecentMessage = {
@@ -173,6 +173,7 @@ const Dashboard = () => {
     <AppLayout title="Inicio">
       <div className="space-y-6">
         <WelcomeHeader user={user} />
+        <ContactSection />
         <StudentList students={students} />
         <QuickActions />
         <RecentMessages messages={recentMessages} onMarkAsRead={handleMarkAsRead} />
