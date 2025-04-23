@@ -1,6 +1,5 @@
-
 import { Link, useLocation } from "react-router-dom";
-import { Bell, FileText, Home, LogOut, User } from "lucide-react";
+import { Bell, FileText, Home, LogOut, User, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -64,6 +63,7 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
         />
         <NavItem to="/documents" icon={FileText} label="Documentos" />
         <NavItem to="/profile" icon={User} label="Perfil" />
+        <NavItem to="/contacto" icon={Mail} label="Contacto" />
       </div>
       
       <div className="absolute bottom-8 left-6 right-6">
