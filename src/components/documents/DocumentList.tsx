@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import DocumentCard from "./DocumentCard";
 import { supabase } from "@/lib/supabase";
@@ -12,6 +11,8 @@ type SupabaseDocument = {
   url: string;
   date: string;
   category: string;
+  student_name?: string;
+  is_global: boolean;
 };
 
 const CategoryFilter = ({
@@ -64,21 +65,23 @@ const DocumentList = () => {
       setLoading(true);
       setError(null);
 
-      // Obtener documentos "globales" y sus categorías
       const { data, error } = await supabase
         .from("documents")
         .select(`
           id,
           title,
           description,
-          category:category_id (
-            name
-          ),
+          category:document_categories(name),
           file_type,
           file_url,
-          created_at
+          created_at,
+          is_global,
+          student:students(
+            first_name,
+            last_name1,
+            last_name2
+          )
         `)
-        .eq("is_global", true)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -95,12 +98,16 @@ const DocumentList = () => {
         type: mapFileType(doc.file_type),
         url: doc.file_url,
         date: doc.created_at,
-        category: doc.category?.name ?? "Sin categoría"
+        category: doc.category?.name ?? "Sin categoría",
+        is_global: doc.is_global,
+        student_name: doc.student ? 
+          `${doc.student.first_name} ${doc.student.last_name1}${doc.student.last_name2 ? ` ${doc.student.last_name2}` : ''}` 
+          : undefined
       }));
 
       setDocuments(parsedDocs);
 
-      // Un set para categorías únicas
+      // Obtener categorías únicas
       const uniqueCategories = [
         ...new Set(parsedDocs.map((doc) => doc.category))
       ];

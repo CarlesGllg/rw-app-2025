@@ -1,9 +1,10 @@
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { FileText, Download } from "lucide-react";
+import { FileText, Download, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 type Document = {
   id: string;
@@ -13,6 +14,8 @@ type Document = {
   url: string;
   date: string;
   category: string;
+  student_name?: string; // Nombre del estudiante si el documento es específico
+  is_global: boolean;
 };
 
 type DocumentCardProps = {
@@ -60,16 +63,28 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
               {document.description}
             </p>
             
-            <div className="flex flex-wrap items-center justify-between mt-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xs bg-ios-gray px-2 py-1 rounded-md">
-                  {document.category}
-                </span>
-                <span className="text-xs text-gray-500">
-                  {formattedDate}
-                </span>
-              </div>
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <span className="text-xs bg-ios-gray px-2 py-1 rounded-md">
+                {document.category}
+              </span>
               
+              {document.is_global ? (
+                <Badge variant="secondary" className="text-xs">
+                  Global
+                </Badge>
+              ) : document.student_name ? (
+                <Badge variant="outline" className="text-xs flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  {document.student_name}
+                </Badge>
+              ) : null}
+              
+              <span className="text-xs text-gray-500">
+                {formattedDate}
+              </span>
+            </div>
+            
+            <div className="flex justify-end mt-3">
               <Button
                 size="sm"
                 variant="ghost"
