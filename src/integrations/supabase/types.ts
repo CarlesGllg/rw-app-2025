@@ -71,6 +71,84 @@ export type Database = {
           },
         ]
       }
+      document_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string | null
+          file_type: string
+          file_url: string
+          id: string
+          is_global: boolean
+          student_id: string | null
+          title: string
+          updated_at: string
+          uploader_id: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_type: string
+          file_url: string
+          id?: string
+          is_global?: boolean
+          student_id?: string | null
+          title: string
+          updated_at?: string
+          uploader_id?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_global?: boolean
+          student_id?: string | null
+          title?: string
+          updated_at?: string
+          uploader_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "document_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string | null

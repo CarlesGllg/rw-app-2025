@@ -1,59 +1,21 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DocumentCard from "./DocumentCard";
+import { supabase } from "@/lib/supabase";
 
-// Sample data for documents
-const DOCUMENTS = [
-  {
-    id: "1",
-    title: "Calendario Escolar 2025",
-    description: "Calendario oficial con fechas importantes, periodos vacacionales y eventos escolares",
-    type: "pdf" as const,
-    url: "#",
-    date: "2025-04-01T10:00:00",
-    category: "Administrativo"
-  },
-  {
-    id: "2",
-    title: "Reglamento Interno",
-    description: "Normativa de convivencia escolar, derechos y obligaciones de la comunidad educativa",
-    type: "pdf" as const,
-    url: "#",
-    date: "2025-03-15T14:30:00",
-    category: "Normativas"
-  },
-  {
-    id: "3",
-    title: "Lista de útiles - 4º Primaria",
-    description: "Lista completa de materiales necesarios para el curso escolar",
-    type: "pdf" as const,
-    url: "#",
-    date: "2025-03-10T09:45:00",
-    category: "Material Escolar"
-  },
-  {
-    id: "4",
-    title: "Circular - Excursión educativa",
-    description: "Información sobre la visita al museo programada para el 5 de mayo",
-    type: "doc" as const,
-    url: "#",
-    date: "2025-04-12T13:20:00",
-    category: "Actividades"
-  },
-  {
-    id: "5",
-    title: "Formulario de autorización médica",
-    description: "Documento para autorización de medicamentos en horario escolar",
-    type: "pdf" as const,
-    url: "#",
-    date: "2025-02-28T11:10:00",
-    category: "Salud"
-  }
-];
+// Tipos de documento y categoría
+type SupabaseDocument = {
+  id: string;
+  title: string;
+  description: string;
+  type: "pdf" | "doc" | "xls" | "img" | "other";
+  url: string;
+  date: string;
+  category: string;
+};
 
-// Category filter component
-const CategoryFilter = ({ 
-  categories, 
+const CategoryFilter = ({
+  categories,
   activeCategory,
   onChange
 }: {
@@ -73,7 +35,6 @@ const CategoryFilter = ({
       >
         Todos
       </button>
-      
       {categories.map((category) => (
         <button
           key={category}
@@ -92,14 +53,94 @@ const CategoryFilter = ({
 };
 
 const DocumentList = () => {
-  const [documents, setDocuments] = useState(DOCUMENTS);
+  const [documents, setDocuments] = useState<SupabaseDocument[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  
-  const categories = [...new Set(documents.map(doc => doc.category))];
-  
-  const filteredDocuments = activeCategory 
-    ? documents.filter(doc => doc.category === activeCategory)
+  const [categories, setCategories] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      setLoading(true);
+      setError(null);
+
+      // Obtener documentos "globales" y sus categorías
+      const { data, error } = await supabase
+        .from("documents")
+        .select(`
+          id,
+          title,
+          description,
+          category:category_id (
+            name
+          ),
+          file_type,
+          file_url,
+          created_at
+        `)
+        .eq("is_global", true)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setError("Error al cargar los documentos.");
+        setLoading(false);
+        return;
+      }
+
+      // Adaptar al tipo esperado
+      const parsedDocs: SupabaseDocument[] = (data ?? []).map((doc: any) => ({
+        id: doc.id,
+        title: doc.title,
+        description: doc.description ?? "",
+        type: mapFileType(doc.file_type),
+        url: doc.file_url,
+        date: doc.created_at,
+        category: doc.category?.name ?? "Sin categoría"
+      }));
+
+      setDocuments(parsedDocs);
+
+      // Un set para categorías únicas
+      const uniqueCategories = [
+        ...new Set(parsedDocs.map((doc) => doc.category))
+      ];
+      setCategories(uniqueCategories);
+
+      setLoading(false);
+    };
+
+    fetchDocuments();
+  }, []);
+
+  // Mapear tipos de archivo
+  function mapFileType(type: string): SupabaseDocument["type"] {
+    if (type === "pdf") return "pdf";
+    if (type === "doc" || type === "docx") return "doc";
+    if (type === "xls" || type === "xlsx") return "xls";
+    if (type === "jpg" || type === "jpeg" || type === "png") return "img";
+    return "other";
+  }
+
+  const filteredDocuments = activeCategory
+    ? documents.filter((doc) => doc.category === activeCategory)
     : documents;
+
+  // Loading and error UI
+  if (loading) {
+    return (
+      <div className="py-8 text-center text-gray-500 animate-pulse">
+        Cargando documentos...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-8 text-center text-red-500">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -108,7 +149,6 @@ const DocumentList = () => {
         activeCategory={activeCategory}
         onChange={setActiveCategory}
       />
-      
       {filteredDocuments.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">No hay documentos disponibles</p>
