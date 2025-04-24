@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,7 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
   
-  // Don't render anything until we know if the user is authenticated
+  // No renderizamos nada hasta saber si el usuario está autenticado
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -23,22 +22,19 @@ const Index = () => {
     );
   }
   
-  // Only show the landing page if the user is not authenticated
+  // Solo mostramos la página de inicio si el usuario no está autenticado
   if (!user) {
     return (
       <div className="min-h-screen bg-ios-gray flex flex-col">
         <main className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-sm mx-auto text-center animate-fade-in">
+            {/* Nuevo logo rectángulo */}
             <div className="mb-8">
-              <div className="h-24 w-24 bg-ios-blue rounded-3xl mx-auto flex items-center justify-center">
-                <span className="text-white text-4xl font-bold">CA</span>
+              <div className="h-24 w-64 mx-auto flex items-center justify-center">
+                <img src="/logo_rect.jpg" alt="Logo" className="w-full object-contain" /> {/* Logo rectangular */}
               </div>
             </div>
-            
-            <h1 className="text-3xl font-bold text-ios-darkText mb-2">
-              Colegio App
-            </h1>
-            
+
             <p className="text-gray-600 mb-8">
               Portal de comunicación para padres de familia
             </p>
@@ -57,13 +53,13 @@ const Index = () => {
         </main>
         
         <footer className="py-4 text-center text-sm text-gray-500">
-          <p>&copy; 2025 Colegio App. Todos los derechos reservados.</p>
+          <p>&copy; 2025 Right Way English School. Todos los derechos reservados.</p>
         </footer>
       </div>
     );
   }
   
-  return null; // This will never render because we redirect authenticated users
+  return null; // Nunca se renderiza porque redirigimos a los usuarios autenticados
 };
 
 export default Index;
