@@ -23,7 +23,7 @@ type RecentMessagesProps = {
   onMarkAsRead: (messageId: string, studentId: string) => void;
 };
 
-const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
+const RecentMessages = ({ messages = [], onMarkAsRead }: RecentMessagesProps) => {
   const navigate = useNavigate();
 
   return (
@@ -40,7 +40,7 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
         </Button>
       </div>
 
-      {messages.length > 0 ? (
+      {messages && messages.length > 0 ? (
         <div className="space-y-4">
           {messages.map((message) => (
             <MessageCard

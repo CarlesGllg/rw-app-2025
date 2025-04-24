@@ -11,11 +11,11 @@ type StudentListProps = {
   students: Student[];
 };
 
-const StudentList = ({ students }: StudentListProps) => {
+const StudentList = ({ students = [] }: StudentListProps) => {
   return (
     <div className="mt-6">
       <h3 className="font-medium text-gray-700 mb-3">Estudiantes:</h3>
-      {students.length > 0 ? (
+      {students && students.length > 0 ? (
         <div className="space-y-2">
           {students.map((student) => (
             <div key={student.id} className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">

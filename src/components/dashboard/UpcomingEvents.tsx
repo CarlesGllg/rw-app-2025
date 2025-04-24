@@ -8,7 +8,7 @@ type UpcomingEventsProps = {
   events: Event[];
 };
 
-const UpcomingEvents = ({ events }: UpcomingEventsProps) => {
+const UpcomingEvents = ({ events = [] }: UpcomingEventsProps) => {
   return (
     <section>
       <div className="flex justify-between items-center mb-3">
@@ -16,7 +16,7 @@ const UpcomingEvents = ({ events }: UpcomingEventsProps) => {
       </div>
 
       <div className="space-y-2">
-        {events.length > 0 ? (
+        {events && events.length > 0 ? (
           events.map((event) => (
             <div key={event.id} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100">
               <div className="h-12 w-12 flex flex-col items-center justify-center bg-ios-blue/10 text-ios-blue rounded-lg">
