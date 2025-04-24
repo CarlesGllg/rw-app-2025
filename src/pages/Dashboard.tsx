@@ -6,7 +6,6 @@ import QuickActions from '@/components/dashboard/QuickActions';
 import RecentMessages from '@/components/dashboard/RecentMessages';
 import StudentList from '@/components/dashboard/StudentList';
 import UpcomingEvents from '@/components/dashboard/UpcomingEvents';
-import { MessagePriority } from '@/types/database';
 import AppLayout from '@/components/layout/AppLayout';
 
 const Dashboard = () => {
@@ -25,14 +24,7 @@ const Dashboard = () => {
   return (
     <AppLayout title="Dashboard">
       <div className="p-6 space-y-6">
-        <WelcomeHeader user={user || { 
-          id: '',
-          email: '',
-          role: 'parent',
-          full_name: 'Usuario',
-          created_at: '',
-          updated_at: ''
-        }} />
+        <WelcomeHeader user={user} />
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <QuickActions />

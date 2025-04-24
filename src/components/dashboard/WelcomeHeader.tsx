@@ -5,7 +5,7 @@ import UserAvatar from "@/components/ui/UserAvatar";
 import type { User } from "@/hooks/useAuth";
 
 type WelcomeHeaderProps = {
-  user: User;
+  user: User | null;
 };
 
 const WelcomeHeader = ({ user }: WelcomeHeaderProps) => {
@@ -13,7 +13,7 @@ const WelcomeHeader = ({ user }: WelcomeHeaderProps) => {
   const formattedDate = format(today, "EEEE, d 'de' MMMM yyyy", { locale: es });
   const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
   
-  // Use optional chaining to prevent errors when accessing user.full_name
+  // Use optional chaining and provide a default value
   const firstName = user?.full_name?.split(" ")[0] || 'Usuario';
 
   return (
