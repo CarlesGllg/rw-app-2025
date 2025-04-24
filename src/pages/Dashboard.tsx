@@ -127,18 +127,14 @@ const Dashboard = () => {
     <AppLayout title="Dashboard">
       <div className="p-6 space-y-6">
         <WelcomeHeader user={user} />
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <QuickActions />
-            <RecentMessages 
-              messages={messages} 
-              onMarkAsRead={handleMarkAsRead} 
-            />
-          </div>
-          <div className="space-y-6">
-            <StudentList students={students} />
-            <UpcomingEvents events={events} />
-          </div>
+        <div className="space-y-6">
+          <QuickActions />
+          <StudentList students={students} />
+          <RecentMessages 
+            messages={messages} 
+            onMarkAsRead={handleMarkAsRead} 
+          />
+          <UpcomingEvents events={events} />
         </div>
       </div>
     </AppLayout>
