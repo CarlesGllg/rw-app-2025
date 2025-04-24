@@ -47,10 +47,14 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
   };
 
   return (
-    <div className="hidden fixed left-0 top-0 bottom-0 w-64 bg-white shadow-sm border-r border-gray-100 md:block">
-      <div className="p-6 border-b border-gray-100">
-        <h2 className="font-bold text-2xl text-ios-blue">Colegio App</h2>
-        <p className="text-sm text-gray-500 mt-1">Portal para Padres</p>
+    <div className="hidden fixed left-0 top-0 bottom-0 w-64 bg-white shadow-sm border-r border-gray-100 md:block mt-16">
+      <div className="p-6 border-b border-gray-100 flex items-center">
+        {/* Logo */}
+        <img src="/solologo_fondo_transp.png" alt="Logo" className="h-8 w-8 mr-2" /> {/* Ruta del logo */}
+        <div>
+          <h2 className="font-bold text-2xl text-ios-blue">Right Way</h2>
+          <p className="text-sm text-gray-500 mt-1">Portal para Padres</p>
+        </div>
       </div>
       
       <div className="p-4 space-y-1">
