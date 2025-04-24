@@ -78,7 +78,7 @@ const Dashboard = () => {
         }
         
         // Get upcoming events
-        const { data: eventsData } = await supabase
+        const { data: eventsData, error: eventsError } = await supabase
           .from('events')
           .select('*')
           .gte('start_date', new Date().toISOString())
@@ -127,9 +127,9 @@ const Dashboard = () => {
     <AppLayout title="Dashboard">
       <div className="p-6 space-y-6">
         <WelcomeHeader user={user} />
+        <StudentList students={students} />
         <div className="space-y-6">
           <QuickActions />
-          <StudentList students={students} />
           <RecentMessages 
             messages={messages} 
             onMarkAsRead={handleMarkAsRead} 
