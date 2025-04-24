@@ -52,7 +52,7 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
         {/* Logo */}
         <img src="/solologo_fondo_transp.png" alt="Logo" className="h-8 w-8 mr-2" /> {/* Ruta del logo */}
         <div>
-          <h2 className="font-bold text-2xl text-ios-blue">Right Way</h2>
+          <h2 className="text-2xl text-black font-serif">Right Way</h2> {/* Cambiado a color negro y fuente Times New Roman */}
           <p className="text-sm text-gray-500 mt-1">Portal para Padres</p>
         </div>
       </div>
