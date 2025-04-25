@@ -1,0 +1,20 @@
+{
+    "name": "Right Way English School",
+    "short_name": "RW_Padres",
+    "description": "Aplicación de comunicación con los padres de alumnos de la escuela",
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff",
+    "icons": [
+      {
+        "src": "/rw-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/rw-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  
