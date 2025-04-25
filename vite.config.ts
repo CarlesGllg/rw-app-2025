@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import VitePWA from 'vite-plugin-pwa'; // Importamos el plugin PWA
+import { VitePWA } from 'vite-plugin-pwa'; // Importamos el plugin PWA
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
