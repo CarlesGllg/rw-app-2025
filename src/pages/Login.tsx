@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import LoginForm from "@/components/auth/LoginForm";
 import { Button } from "@/components/ui/button";
@@ -8,9 +7,12 @@ const Login = () => {
     <div className="min-h-screen flex flex-col bg-ios-gray">
       <header className="py-8 px-6">
         <div className="max-w-sm mx-auto">
-          <h1 className="text-2xl font-bold text-center text-ios-darkText">
-            Colegio App
-          </h1>
+          {/* Aquí cambiamos el texto por la imagen */}
+          <img
+            src="/logo_txt_transp.png" // Asegúrate de que la imagen esté en el directorio raíz
+            alt="Colegio App"
+            className="mx-auto" // Esto centra la imagen
+          />
           <p className="text-center text-gray-500 mt-1">Portal para Padres</p>
         </div>
       </header>
@@ -36,9 +38,9 @@ const Login = () => {
       
       <footer className="py-4 text-center text-sm text-gray-500">
         <p>&copy; 2025 Colegio App. Todos los derechos reservados.</p>
-      </footer>
-    </div>
-  );
+      </footer> 
+    </div> 
+  ); 
 };
 
 export default Login;

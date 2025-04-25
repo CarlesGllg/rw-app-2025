@@ -16,7 +16,6 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Get the current URL for the redirect
   const siteUrl = window.location.origin;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +30,7 @@ const LoginForm = () => {
         });
 
         if (error) throw error;
-        
+
         navigate("/dashboard");
         toast.success("¡Bienvenido de nuevo!");
       } else {
@@ -42,13 +41,13 @@ const LoginForm = () => {
             data: {
               full_name: fullName,
             },
-            emailRedirectTo: `${siteUrl}/verificar`
+            emailRedirectTo: `${siteUrl}/verificar`,
           },
         });
 
         if (error) throw error;
-        
-        navigate('/verificar', { state: { email } });
+
+        navigate("/verificar", { state: { email } });
         toast.success("Por favor revisa tu correo para verificar tu cuenta");
       }
     } catch (error: any) {
@@ -66,13 +65,13 @@ const LoginForm = () => {
             <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
               Nombre Completo
             </Label>
-            <div className="relative">
+            <div className="relative flex items-center">
               <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
               <Input
                 id="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="ios-input pl-10"
+                className="w-full pl-10 py-2 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ios-blue text-sm"
                 placeholder="Tu nombre completo"
                 required={!isLogin}
               />
@@ -84,14 +83,14 @@ const LoginForm = () => {
           <Label htmlFor="email" className="text-sm font-medium text-gray-700">
             Correo Electrónico
           </Label>
-          <div className="relative">
+          <div className="relative flex items-center">
             <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="ios-input pl-10"
+              className="w-full pl-10 py-2 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ios-blue text-sm"
               placeholder="tu@correo.com"
               required
             />
@@ -102,14 +101,14 @@ const LoginForm = () => {
           <Label htmlFor="password" className="text-sm font-medium text-gray-700">
             Contraseña
           </Label>
-          <div className="relative">
+          <div className="relative flex items-center">
             <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="ios-input pl-10"
+              className="w-full pl-10 py-2 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ios-blue text-sm"
               placeholder="Tu contraseña"
               required
               minLength={6}
@@ -147,3 +146,4 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
+
