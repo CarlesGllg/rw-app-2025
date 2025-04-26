@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -34,6 +33,19 @@ const LoginForm = () => {
         navigate("/dashboard");
         toast.success("¡Bienvenido de nuevo!");
       } else {
+        // 💬 Nuevo: Verificar si el correo está permitido
+        const { data, error: fetchError } = await supabase
+          .from("allowed_emails")
+          .select("email")
+          .eq("email", email)
+          .single();
+
+        if (fetchError || !data) {
+          toast.error("Tu correo no está registrado. Por favor, contacta con la escuela.");
+          return;
+        }
+
+        // Si el correo está permitido, continuar el registro
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -117,8 +129,8 @@ const LoginForm = () => {
         </div>
       </div>
 
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         className="ios-button w-full flex items-center justify-center gap-2"
         disabled={isLoading}
       >
@@ -146,4 +158,3 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
-
