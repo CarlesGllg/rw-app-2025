@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Right Way - Padres</string>
+    <string name="title_activity_main">Right Way - Padres</string>
+    <string name="package_name">com.rwes.padres_v1</string>
+    <string name="custom_url_scheme">com.rwes.padres_v1</string>
+</resources>
