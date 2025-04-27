@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'; // Importamos el plugin PWA
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: '/', // <-- 🔥 Añadido aquí
   server: {
     host: "::",
     port: 8080,
