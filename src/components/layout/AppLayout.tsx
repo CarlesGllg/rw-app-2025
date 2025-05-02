@@ -1,4 +1,3 @@
-
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -17,7 +16,7 @@ type AppLayoutProps = {
 const AppLayout = ({ children, title }: AppLayoutProps) => {
   const { user, signOut } = useAuth();
   const unreadMessages = useUnreadMessages();
-  
+
   const markAllAsRead = async () => {
     if (!user) return;
 
@@ -29,7 +28,7 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
 
       if (!studentData?.length) return;
 
-      const studentIds = studentData.map(row => row.student_id);
+      const studentIds = studentData.map((row) => row.student_id);
 
       await supabase
         .from("message_student")
@@ -49,20 +48,17 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="ios-container py-4 flex justify-between items-center">
-          <MobileMenu 
-            unreadNotifications={unreadMessages}
-            onLogout={signOut}
-          />
+          <MobileMenu unreadNotifications={unreadMessages} onLogout={signOut} />
 
           <h1 className="font-semibold text-xl text-ios-darkText">{title}</h1>
-          
+
           <div className="flex items-center space-x-2">
             {unreadMessages > 0 && (
               <Button
                 variant="ghost"
                 size="icon"
                 className="relative"
-                onClick={() => markAllAsRead()}
+                onClick={markAllAsRead}
               >
                 <Bell size={20} />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -74,27 +70,16 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="ios-container py-6">
+      {/* Sidebar */}
+      <DesktopSidebar unreadNotifications={unreadMessages} onLogout={signOut} />
+
+      {/* Main content */}
+      <main className="px-4 md:px-8 py-6 ml-0 md:ml-64 transition-all duration-300">
         {children}
       </main>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Bottom Navigation */}
       <MobileNavigation unreadNotifications={unreadMessages} />
-
-      {/* Desktop Sidebar */}
-      <DesktopSidebar 
-        unreadNotifications={unreadMessages}
-        onLogout={signOut}
-      />
-      
-      {/* Desktop Content Padding */}
-      <div className="hidden md:block md:pl-64">
-        <div className="h-20"></div>
-      </div>
-      
-      {/* Mobile Bottom Navigation Padding */}
-      <div className="pb-16 md:pb-0"></div>
     </div>
   );
 };

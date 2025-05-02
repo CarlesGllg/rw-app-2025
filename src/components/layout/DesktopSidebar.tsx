@@ -24,7 +24,7 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
     badge?: number;
   }) => {
     const isActive = currentPath === to;
-    
+
     return (
       <Link
         to={to}
@@ -47,19 +47,20 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
   };
 
   return (
-    <div className="hidden fixed left-0 top-0 bottom-0 w-64 bg-white shadow-sm border-r border-gray-100 md:block mt-16">
+    <div className="hidden fixed left-0 top-0 bottom-0 w-64 bg-white shadow-sm border-r border-gray-100 md:flex flex-col">
+      {/* Logo y título */}
       <div className="p-6 border-b border-gray-100 flex items-center">
-        {/* Nuevo logo */}
         <img src="/logo_txt_transp.png" alt="Logo" className="h-16 w-full object-contain" />
       </div>
-      
+
       <div className="p-6 border-b border-gray-100">
         <p className="text-base font-semibold text-gray-700 tracking-wide mt-1">
-        Portal para Padres
+          Portal para Padres
         </p>
       </div>
 
-      <div className="p-4 space-y-1">
+      {/* Scrollable navigation */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-1">
         <NavItem to="/dashboard" icon={Home} label="Inicio" />
         <NavItem
           to="/messages"
@@ -71,10 +72,11 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
         <NavItem to="/profile" icon={User} label="Perfil" />
         <NavItem to="/contacto" icon={Mail} label="Contacto" />
       </div>
-      
-      <div className="absolute bottom-8 left-6 right-6">
-        <Button 
-          variant="outline" 
+
+      {/* Logout button */}
+      <div className="p-4">
+        <Button
+          variant="outline"
           className="w-full flex items-center justify-center gap-2"
           onClick={onLogout}
         >
