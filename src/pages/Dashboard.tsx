@@ -1,22 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import WelcomeHeader from '@/components/dashboard/WelcomeHeader';
-import QuickActions from '@/components/dashboard/QuickActions';
-import RecentMessages from '@/components/dashboard/RecentMessages';
-import StudentList from '@/components/dashboard/StudentList';
-import UpcomingEvents from '@/components/dashboard/UpcomingEvents';
-import AppLayout from '@/components/layout/AppLayout';
-import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
-import type { Event } from '@/types/database';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import WelcomeHeader from "@/components/dashboard/WelcomeHeader";
+import QuickActions from "@/components/dashboard/QuickActions";
+import RecentMessages from "@/components/dashboard/RecentMessages";
+import StudentList from "@/components/dashboard/StudentList";
+import UpcomingEvents from "@/components/dashboard/UpcomingEvents";
+import AppLayout from "@/components/layout/AppLayout";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+import type { Event } from "@/types/database";
 
 const Dashboard = () => {
   const { user } = useAuth();
-
   const [messages, setMessages] = useState([]);
   const [students, setStudents] = useState([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Force reflow of the page when navigating to the Dashboard
+  useEffect(() => {
+    // Forzar un reajuste del tamaño de la ventana
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("resize"));
+    }
+  }, []);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -26,9 +33,9 @@ const Dashboard = () => {
       try {
         // Obtener IDs de estudiantes asociados al padre
         const { data: studentParentData, error: studentParentError } = await supabase
-          .from('student_parent')
-          .select('student_id')
-          .eq('parent_id', user.id);
+          .from("student_parent")
+          .select("student_id")
+          .eq("parent_id", user.id);
 
         if (studentParentError) {
           console.error("Error obteniendo relaciones padre-estudiante:", studentParentError);
@@ -39,9 +46,9 @@ const Dashboard = () => {
 
           // Obtener información de los estudiantes
           const { data: studentsData, error: studentsError } = await supabase
-            .from('students')
-            .select('*')
-            .in('id', studentIds);
+            .from("students")
+            .select("*")
+            .in("id", studentIds);
 
           if (studentsError) {
             console.error("Error obteniendo estudiantes:", studentsError);
@@ -53,7 +60,7 @@ const Dashboard = () => {
 
           // Obtener últimos mensajes para los estudiantes
           const { data: messagesData, error: messagesError } = await supabase
-            .from('message_student')
+            .from("message_student")
             .select(`
               id,
               message_id,
@@ -62,8 +69,8 @@ const Dashboard = () => {
               messages:message_id(id, title, content, date, priority, sender),
               students:student_id(id, first_name, last_name1)
             `)
-            .in('student_id', studentIds)
-            .order('created_at', { ascending: false })
+            .in("student_id", studentIds)
+            .order("created_at", { ascending: false })
             .limit(5);
 
           if (messagesError) {
@@ -91,9 +98,9 @@ const Dashboard = () => {
 
         // ⚡ Obtener todos los eventos (sin filtro)
         const { data: eventsData, error: eventsError } = await supabase
-          .from('events')
-          .select('*')
-          .order('start_date', { ascending: true });
+          .from("events")
+          .select("*")
+          .order("start_date", { ascending: true });
 
         if (eventsError) {
           console.error("Error obteniendo eventos:", eventsError);
@@ -101,7 +108,7 @@ const Dashboard = () => {
 
         if (eventsData) {
           console.log("Eventos recibidos:", eventsData.length); // Ver la cantidad
-          
+
           // Filtrar duplicados si hay algún error en los datos
           const uniqueEvents = eventsData.filter(
             (event, index, self) => index === self.findIndex((e) => e.id === event.id)
@@ -124,10 +131,10 @@ const Dashboard = () => {
   const handleMarkAsRead = async (messageId: string, studentId: string) => {
     try {
       await supabase
-        .from('message_student')
+        .from("message_student")
         .update({ read: true })
-        .eq('message_id', messageId)
-        .eq('student_id', studentId);
+        .eq("message_id", messageId)
+        .eq("student_id", studentId);
 
       setMessages(prev =>
         prev.map(msg =>
@@ -137,10 +144,10 @@ const Dashboard = () => {
         )
       );
 
-      toast.success('Mensaje marcado como leído');
+      toast.success("Mensaje marcado como leído");
     } catch (error) {
       console.error("Error al marcar mensaje como leído:", error);
-      toast.error('Error al marcar como leído');
+      toast.error("Error al marcar como leído");
     }
   };
 

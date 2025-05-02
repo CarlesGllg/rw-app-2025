@@ -1,4 +1,4 @@
-import { Bell, FileText, Home, LogOut, Menu, User, X } from "lucide-react";
+import { Bell, FileText, Home, LogOut, Menu, User, X, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -39,8 +39,8 @@ const MobileMenu = ({ unreadNotifications, onLogout }: MobileMenuProps) => {
         aria-label={label}
       >
         <Icon size={20} />
-        <span>{label}</span>
-        {badge && badge > 0 && (
+        <span className="whitespace-nowrap">{label}</span>
+        {badge !== undefined && badge > 0 && (
           <span
             className="absolute right-3 top-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
             aria-label={`${badge} notificaciones sin leer`}
@@ -81,6 +81,7 @@ const MobileMenu = ({ unreadNotifications, onLogout }: MobileMenuProps) => {
           />
           <NavItem to="/documents" icon={FileText} label="Documentos" />
           <NavItem to="/profile" icon={User} label="Perfil" />
+          <NavItem to="/contacto" icon={Mail} label="Contacto" />
         </nav>
 
         {/* Cierre de sesión */}

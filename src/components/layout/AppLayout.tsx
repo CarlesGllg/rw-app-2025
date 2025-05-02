@@ -47,7 +47,12 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
     <div className="min-h-screen bg-ios-gray">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="ios-container py-4 flex justify-between items-center">
+        <div
+          className="ios-container py-4 flex justify-between items-center"
+          style={{
+            paddingTop: "env(safe-area-inset-top)", // Ajusta la parte superior solo según el área segura
+          }}
+        >
           <MobileMenu unreadNotifications={unreadMessages} onLogout={signOut} />
 
           <h1 className="font-semibold text-xl text-ios-darkText">{title}</h1>
