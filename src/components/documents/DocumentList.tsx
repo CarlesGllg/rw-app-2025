@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import DocumentCard from "./DocumentCard";
 import { supabase } from "@/lib/supabase";
 
-// Tipos de documento y categoría
 type SupabaseDocument = {
   id: string;
   title: string;
@@ -28,11 +27,10 @@ const CategoryFilter = ({
     <div className="flex flex-wrap gap-2 mb-4">
       <button
         onClick={() => onChange(null)}
-        className={`px-3 py-1 rounded-full text-sm ${
-          activeCategory === null 
-            ? "bg-ios-blue text-white" 
-            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-        }`}
+        className={`px-3 py-1 rounded-full text-sm ${activeCategory === null
+          ? "bg-ios-blue text-white"
+          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
       >
         Todos
       </button>
@@ -40,11 +38,10 @@ const CategoryFilter = ({
         <button
           key={category}
           onClick={() => onChange(category)}
-          className={`px-3 py-1 rounded-full text-sm ${
-            activeCategory === category 
-              ? "bg-ios-blue text-white" 
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
+          className={`px-3 py-1 rounded-full text-sm ${activeCategory === category
+            ? "bg-ios-blue text-white"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
         >
           {category}
         </button>
@@ -59,80 +56,123 @@ const DocumentList = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [parentId, setParentId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchDocuments = async () => {
-      setLoading(true);
-      setError(null);
-
-      const { data, error } = await supabase
-        .from("documents")
-        .select(`
-          id,
-          title,
-          description,
-          category:document_categories(name),
-          file_type,
-          file_url,
-          created_at,
-          is_global,
-          student:students(
-            first_name,
-            last_name1,
-            last_name2
-          )
-        `)
-        .order("created_at", { ascending: false });
+    const fetchParentId = async () => {
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("id")
+        .maybeSingle();
 
       if (error) {
-        setError("Error al cargar los documentos.");
-        setLoading(false);
+        console.error("Error al obtener el perfil:", error.message);
         return;
       }
 
-      // Adaptar al tipo esperado
-      const parsedDocs: SupabaseDocument[] = (data ?? []).map((doc: any) => ({
-        id: doc.id,
-        title: doc.title,
-        description: doc.description ?? "",
-        type: mapFileType(doc.file_type),
-        url: doc.file_url,
-        date: doc.created_at,
-        category: doc.category?.name ?? "Sin categoría",
-        is_global: doc.is_global,
-        student_name: doc.student ? 
-          `${doc.student.first_name} ${doc.student.last_name1}${doc.student.last_name2 ? ` ${doc.student.last_name2}` : ''}` 
-          : undefined
-      }));
+      if (profile) {
+        setParentId(profile.id);
+      }
+    };
 
-      setDocuments(parsedDocs);
+    fetchParentId();
+  }, []);
 
-      // Obtener categorías únicas
-      const uniqueCategories = [
-        ...new Set(parsedDocs.map((doc) => doc.category))
-      ];
-      setCategories(uniqueCategories);
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      if (!parentId) return;
+      setLoading(true);
+      setError(null);
+
+      try {
+        const { data: studentData, error: studentError } = await supabase
+          .from("student_parent")
+          .select("student_id")
+          .eq("parent_id", parentId);
+
+        if (studentError) throw new Error(studentError.message);
+
+        const studentIds = studentData.map((row) => row.student_id);
+
+        if (studentIds.length === 0) {
+          setDocuments([]);
+          setLoading(false);
+          return;
+        }
+
+        const { data: docLinks, error: docLinkError } = await supabase
+          .from("document_student")
+          .select(`
+            document_id,
+            is_global,
+            student_id,
+            created_at,
+            documents (
+              id,
+              title,
+              description,
+              file_type,
+              file_url,
+              category:document_categories(name)
+            ),
+            students (
+              first_name,
+              last_name1,
+              last_name2
+            )
+          `)
+          .or(`is_global.eq.true,student_id.in.(${studentIds.join(",")})`)
+          .order("created_at", { ascending: false }); // Orden por fecha de vinculación
+
+        if (docLinkError) throw new Error(docLinkError.message);
+
+        const parsedDocs: SupabaseDocument[] = (docLinks ?? [])
+          .filter((link) => link.documents)
+          .map((link) => ({
+            id: link.documents.id,
+            title: link.documents.title,
+            description: link.documents.description ?? "",
+            type: mapFileType(link.documents.file_type),
+            url: link.documents.file_url,
+            date: link.created_at, // Fecha de vinculación
+            category: link.documents.category?.name ?? "Sin categoría",
+            is_global: link.is_global,
+            student_name: link.is_global
+              ? undefined
+              : link.students
+                ? `${link.students.first_name} ${link.students.last_name1}${link.students.last_name2 ? ` ${link.students.last_name2}` : ""}`
+                : undefined
+          }));
+
+        setDocuments(parsedDocs);
+
+        const uniqueCategories = [
+          ...new Set(parsedDocs.map((doc) => doc.category))
+        ];
+        setCategories(uniqueCategories);
+      } catch (err: any) {
+        console.error("Error al cargar documentos:", err.message);
+        setError("Error al cargar los documentos.");
+      }
 
       setLoading(false);
     };
 
     fetchDocuments();
-  }, []);
+  }, [parentId]);
 
-  // Mapear tipos de archivo
-  function mapFileType(type: string): SupabaseDocument["type"] {
+  const mapFileType = (type: string): SupabaseDocument["type"] => {
     if (type === "pdf") return "pdf";
-    if (type === "doc" || type === "docx") return "doc";
-    if (type === "xls" || type === "xlsx") return "xls";
-    if (type === "jpg" || type === "jpeg" || type === "png") return "img";
+    if (["doc", "docx"].includes(type)) return "doc";
+    if (["xls", "xlsx"].includes(type)) return "xls";
+    if (["jpg", "jpeg", "png"].includes(type)) return "img";
     return "other";
-  }
+  };
 
   const filteredDocuments = activeCategory
     ? documents.filter((doc) => doc.category === activeCategory)
     : documents;
 
-  // Loading and error UI
   if (loading) {
     return (
       <div className="py-8 text-center text-gray-500 animate-pulse">
@@ -151,7 +191,7 @@ const DocumentList = () => {
 
   return (
     <div className="space-y-4">
-      <CategoryFilter 
+      <CategoryFilter
         categories={categories}
         activeCategory={activeCategory}
         onChange={setActiveCategory}
