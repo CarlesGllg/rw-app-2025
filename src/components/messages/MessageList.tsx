@@ -13,6 +13,7 @@ type Message = {
   student_id: string;
   student_first_name: string;
   student_last_name1: string;
+  course_name: string | null; // nuevo campo
 };
 
 const MessageList = () => {
@@ -39,7 +40,6 @@ const MessageList = () => {
       setLoading(true);
 
       try {
-        // Obtener estudiantes del padre
         const { data: studentData, error: studentError } = await supabase
           .from("student_parent")
           .select("student_id")
@@ -59,10 +59,22 @@ const MessageList = () => {
           return;
         }
 
-        // Obtener relaciones mensaje-estudiante con datos del estudiante
         const { data: messageLinks, error: messageError } = await supabase
           .from("message_student")
-          .select("read, student_id, message_id, students (first_name, last_name1)")
+          .select(`
+            read,
+            student_id,
+            message_id,
+            students (
+              first_name,
+              last_name1,
+              student_course (
+                courses (
+                  name
+                )
+              )
+            )
+          `)
           .in("student_id", studentIds)
           .order("message_id", { ascending: false });
 
@@ -74,7 +86,6 @@ const MessageList = () => {
 
         const messageIds = messageLinks.map((link) => link.message_id);
 
-        // Obtener todos los mensajes y filtrar por los vinculados
         const { data: allMessagesData, error: allMessagesError } = await supabase
           .from("messages")
           .select("id, title, content, date, sender, priority");
@@ -89,10 +100,11 @@ const MessageList = () => {
           messageIds.includes(msg.id)
         );
 
-        // Formatear mensajes combinando info de mensajes y estudiantes
         const formattedMessages: Message[] = messageLinks
           .map((link) => {
             const message = filteredMessages.find((msg) => msg.id === link.message_id);
+            const courseName = link.students?.student_course?.[0]?.courses?.name || null;
+
             if (message && link.students) {
               return {
                 id: message.id,
@@ -105,6 +117,7 @@ const MessageList = () => {
                 student_id: link.student_id,
                 student_first_name: link.students.first_name,
                 student_last_name1: link.students.last_name1,
+                course_name: courseName,
               };
             }
             return null;

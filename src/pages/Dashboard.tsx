@@ -17,9 +17,7 @@ const Dashboard = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Force reflow of the page when navigating to the Dashboard
   useEffect(() => {
-    // Forzar un reajuste del tamaño de la ventana
     if (typeof window !== "undefined") {
       window.dispatchEvent(new Event("resize"));
     }
@@ -31,7 +29,6 @@ const Dashboard = () => {
 
       setLoading(true);
       try {
-        // Obtener IDs de estudiantes asociados al padre
         const { data: studentParentData, error: studentParentError } = await supabase
           .from("student_parent")
           .select("student_id")
@@ -39,12 +36,12 @@ const Dashboard = () => {
 
         if (studentParentError) {
           console.error("Error obteniendo relaciones padre-estudiante:", studentParentError);
+          return;
         }
 
         if (studentParentData?.length) {
           const studentIds = studentParentData.map(sp => sp.student_id);
 
-          // Obtener información de los estudiantes
           const { data: studentsData, error: studentsError } = await supabase
             .from("students")
             .select("*")
@@ -52,13 +49,10 @@ const Dashboard = () => {
 
           if (studentsError) {
             console.error("Error obteniendo estudiantes:", studentsError);
+          } else {
+            setStudents(studentsData || []);
           }
 
-          if (studentsData) {
-            setStudents(studentsData);
-          }
-
-          // Obtener últimos mensajes para los estudiantes
           const { data: messagesData, error: messagesError } = await supabase
             .from("message_student")
             .select(`
@@ -67,7 +61,14 @@ const Dashboard = () => {
               student_id,
               read,
               messages:message_id(id, title, content, date, priority, sender),
-              students:student_id(id, first_name, last_name1)
+              students:student_id(
+                id,
+                first_name,
+                last_name1,
+                student_course(
+                  courses(name)
+                )
+              )
             `)
             .in("student_id", studentIds)
             .order("created_at", { ascending: false })
@@ -75,28 +76,30 @@ const Dashboard = () => {
 
           if (messagesError) {
             console.error("Error obteniendo mensajes:", messagesError);
-          }
+          } else if (messagesData) {
+            const formattedMessages = messagesData.map(item => {
+              const courseName = item.students?.student_course?.[0]?.courses?.name || null;
 
-          if (messagesData) {
-            const formattedMessages = messagesData.map(item => ({
-              id: item.id, // ID único de la relación
-              message_id: item.message_id,
-              title: item.messages.title,
-              content: item.messages.content,
-              date: item.messages.date,
-              sender: item.messages.sender,
-              priority: item.messages.priority,
-              student_id: item.student_id,
-              student_first_name: item.students.first_name,
-              student_last_name1: item.students.last_name1,
-              read: item.read,
-            }));
+              return {
+                id: item.id,
+                message_id: item.message_id,
+                title: item.messages.title,
+                content: item.messages.content,
+                date: item.messages.date,
+                sender: item.messages.sender,
+                priority: item.messages.priority,
+                student_id: item.student_id,
+                student_first_name: item.students.first_name,
+                student_last_name1: item.students.last_name1,
+                read: item.read,
+                course_name: courseName, // Añadido
+              };
+            });
 
             setMessages(formattedMessages);
           }
         }
 
-        // ⚡ Obtener todos los eventos (sin filtro)
         const { data: eventsData, error: eventsError } = await supabase
           .from("events")
           .select("*")
@@ -104,17 +107,11 @@ const Dashboard = () => {
 
         if (eventsError) {
           console.error("Error obteniendo eventos:", eventsError);
-        }
-
-        if (eventsData) {
-          console.log("Eventos recibidos:", eventsData.length); // Ver la cantidad
-
-          // Filtrar duplicados si hay algún error en los datos
+        } else {
           const uniqueEvents = eventsData.filter(
             (event, index, self) => index === self.findIndex((e) => e.id === event.id)
           );
-
-          setEvents(uniqueEvents); // Asignar los eventos recibidos al estado
+          setEvents(uniqueEvents);
         }
 
       } catch (error) {

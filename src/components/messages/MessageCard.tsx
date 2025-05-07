@@ -16,6 +16,7 @@ type Message = {
   student_id: string;
   student_first_name: string;
   student_last_name1: string;
+  course_name: string | null; // nuevo campo
 };
 
 type MessageCardProps = {
@@ -74,6 +75,13 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
               ({message.student_first_name} {message.student_last_name1}) {message.title}
             </h3>
           </div>
+
+          {/* Nombre del curso */}
+          {message.course_name && (
+            <p className="text-sm text-gray-500 mt-1">
+              Curso: <span className="font-medium">{message.course_name}</span>
+            </p>
+          )}
 
           <div className="flex flex-wrap items-center gap-2 mt-2">
             <Badge variant="outline" className={priorityColors[message.priority]}>

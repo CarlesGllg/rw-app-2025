@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +15,7 @@ type RecentMessage = {
   student_first_name: string;
   student_last_name1: string;
   read: boolean;
+  course_name: string | null; // Añadido
 };
 
 type RecentMessagesProps = {
@@ -40,7 +40,7 @@ const RecentMessages = ({ messages = [], onMarkAsRead }: RecentMessagesProps) =>
         </Button>
       </div>
 
-      {messages && messages.length > 0 ? (
+      {messages.length > 0 ? (
         <div className="space-y-4">
           {messages.map((message) => (
             <MessageCard
