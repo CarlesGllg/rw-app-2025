@@ -100,10 +100,14 @@ const Dashboard = () => {
           }
         }
 
+        const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
         const { data: eventsData, error: eventsError } = await supabase
           .from("events")
           .select("*")
+          .gte("start_date", today)
           .order("start_date", { ascending: true });
+
 
         if (eventsError) {
           console.error("Error obteniendo eventos:", eventsError);
