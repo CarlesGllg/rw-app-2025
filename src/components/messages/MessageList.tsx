@@ -109,6 +109,8 @@ const MessageList = () => {
           console.error("Error al obtener adjuntos:", attachmentsError.message);
         }
 
+        console.log("Attachments data:", attachmentsData);
+
         const filteredMessages = allMessagesData?.filter((msg) =>
           messageIds.includes(msg.id)
         );
@@ -118,6 +120,8 @@ const MessageList = () => {
             const message = filteredMessages?.find((msg) => msg.id === link.message_id);
             const courseName = link.students?.student_course?.[0]?.courses?.name || null;
             const messageAttachments = attachmentsData?.filter(att => att.message_id === link.message_id) || [];
+
+            console.log(`Message ${link.message_id} attachments:`, messageAttachments);
 
             if (message && link.students) {
               return {
@@ -139,6 +143,7 @@ const MessageList = () => {
           })
           .filter((msg): msg is Message => msg !== null);
 
+        console.log("Formatted messages with attachments:", formattedMessages);
         setMessages(formattedMessages);
       } catch (error) {
         console.error("Error general al cargar los mensajes:", error);
