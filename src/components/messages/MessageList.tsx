@@ -16,7 +16,7 @@ type Message = {
   student_first_name: string;
   student_last_name1: string;
   course_name: string | null;
-  attachments?: MessageAttachment[];
+  attachments: MessageAttachment[];
 };
 
 const MessageList = () => {
