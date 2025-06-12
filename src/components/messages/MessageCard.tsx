@@ -65,14 +65,14 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
         onClick={handleToggle}
       >
         <div className="flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {!message.read && (
-              <span className="h-2 w-2 rounded-full bg-ios-blue" />
+              <span className="h-2 w-2 rounded-full bg-ios-blue flex-shrink-0" />
             )}
 
             <h3
               className={cn(
-                "font-medium text-lg",
+                "font-medium text-lg flex-1",
                 !message.read && "text-ios-darkText",
                 message.read && "text-gray-700"
               )}
@@ -81,7 +81,7 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
             </h3>
 
             {hasAttachments && (
-              <Paperclip className="h-4 w-4 text-gray-400" />
+              <Paperclip className="h-4 w-4 text-gray-400 flex-shrink-0" />
             )}
           </div>
 
@@ -103,7 +103,7 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
           </div>
         </div>
 
-        <div>
+        <div className="flex-shrink-0 ml-2">
           {expanded ? (
             <ChevronUp className="h-5 w-5 text-gray-400" />
           ) : (
