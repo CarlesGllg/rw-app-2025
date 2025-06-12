@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import UserAvatar from "@/components/ui/UserAvatar";
@@ -29,7 +30,7 @@ const WelcomeHeader = ({ user }: WelcomeHeaderProps) => {
           name={user?.full_name || 'Usuario'}
           role={user?.role || 'parent'}
           showRole={true}
-          className="w-12 h-12 sm:w-16 sm:h-16"
+          size="lg"
         />
       </div>
     </section>

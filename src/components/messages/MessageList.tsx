@@ -115,7 +115,7 @@ const MessageList = () => {
 
         const formattedMessages: Message[] = messageLinks
           .map((link) => {
-            const message = filteredMessages.find((msg) => msg.id === link.message_id);
+            const message = filteredMessages?.find((msg) => msg.id === link.message_id);
             const courseName = link.students?.student_course?.[0]?.courses?.name || null;
             const messageAttachments = attachmentsData?.filter(att => att.message_id === link.message_id) || [];
 
