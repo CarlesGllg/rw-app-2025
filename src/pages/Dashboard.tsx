@@ -77,8 +77,20 @@ const Dashboard = () => {
           if (messagesError) {
             console.error("Error obteniendo mensajes:", messagesError);
           } else if (messagesData) {
+            // Obtener adjuntos para los mensajes
+            const messageIds = messagesData.map(item => item.message_id);
+            const { data: attachmentsData, error: attachmentsError } = await supabase
+              .from("message_attachments")
+              .select("*")
+              .in("message_id", messageIds);
+
+            if (attachmentsError) {
+              console.error("Error obteniendo adjuntos:", attachmentsError);
+            }
+
             const formattedMessages = messagesData.map(item => {
               const courseName = item.students?.student_course?.[0]?.courses?.name || null;
+              const messageAttachments = attachmentsData?.filter(att => att.message_id === item.message_id) || [];
 
               return {
                 id: item.id,
@@ -92,7 +104,8 @@ const Dashboard = () => {
                 student_first_name: item.students.first_name,
                 student_last_name1: item.students.last_name1,
                 read: item.read,
-                course_name: courseName, // Añadido
+                course_name: courseName,
+                attachments: messageAttachments,
               };
             });
 
@@ -100,14 +113,13 @@ const Dashboard = () => {
           }
         }
 
-        const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+        const today = new Date().toISOString().split("T")[0];
 
         const { data: eventsData, error: eventsError } = await supabase
           .from("events")
           .select("*")
           .gte("start_date", today)
           .order("start_date", { ascending: true });
-
 
         if (eventsError) {
           console.error("Error obteniendo eventos:", eventsError);

@@ -1,8 +1,9 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import MessageCard from "@/components/messages/MessageCard";
-import { MessagePriority } from "@/types/database";
+import { MessagePriority, MessageAttachment } from "@/types/database";
 
 type RecentMessage = {
   id: string;
@@ -15,7 +16,8 @@ type RecentMessage = {
   student_first_name: string;
   student_last_name1: string;
   read: boolean;
-  course_name: string | null; // Añadido
+  course_name: string | null;
+  attachments?: MessageAttachment[];
 };
 
 type RecentMessagesProps = {

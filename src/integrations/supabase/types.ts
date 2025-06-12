@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      allowed_emails: {
+        Row: {
+          email: string
+          id: string
+          suspended: boolean | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          suspended?: boolean | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          suspended?: boolean | null
+        }
+        Relationships: []
+      }
       course_school: {
         Row: {
           course_id: string
@@ -49,19 +67,29 @@ export type Database = {
         Row: {
           id: string
           name: string
+          school_id: string | null
           teacher_id: string | null
         }
         Insert: {
           id?: string
           name: string
+          school_id?: string | null
           teacher_id?: string | null
         }
         Update: {
           id?: string
           name?: string
+          school_id?: string | null
           teacher_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "courses_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "courses_teacher_id_fkey"
             columns: ["teacher_id"]
@@ -92,6 +120,45 @@ export type Database = {
         }
         Relationships: []
       }
+      document_student: {
+        Row: {
+          created_at: string | null
+          document_id: string
+          id: string
+          is_global: boolean
+          student_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          document_id: string
+          id?: string
+          is_global?: boolean
+          student_id: string
+        }
+        Update: {
+          created_at?: string | null
+          document_id?: string
+          id?: string
+          is_global?: boolean
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_student_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_student_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           category_id: string | null
@@ -100,8 +167,6 @@ export type Database = {
           file_type: string
           file_url: string
           id: string
-          is_global: boolean
-          student_id: string | null
           title: string
           updated_at: string
           uploader_id: string | null
@@ -113,8 +178,6 @@ export type Database = {
           file_type: string
           file_url: string
           id?: string
-          is_global?: boolean
-          student_id?: string | null
           title: string
           updated_at?: string
           uploader_id?: string | null
@@ -126,8 +189,6 @@ export type Database = {
           file_type?: string
           file_url?: string
           id?: string
-          is_global?: boolean
-          student_id?: string | null
           title?: string
           updated_at?: string
           uploader_id?: string | null
@@ -138,13 +199,6 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "document_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -175,6 +229,47 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      message_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          message_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          message_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          message_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       message_student: {
         Row: {

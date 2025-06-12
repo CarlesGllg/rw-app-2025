@@ -1,3 +1,4 @@
+
 export type UserRole = 'admin' | 'school' | 'parent';
 export type MessagePriority = 'low' | 'medium' | 'high';
 export type DocumentType = 'pdf' | 'doc' | 'xls' | 'other';
@@ -17,6 +18,17 @@ export interface Message {
   content: string;
   sender_id: string;
   priority: MessagePriority;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MessageAttachment {
+  id: string;
+  message_id: string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
   created_at: string;
   updated_at: string;
 }

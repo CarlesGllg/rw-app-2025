@@ -1,9 +1,12 @@
+
 import { useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronUp, Paperclip } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import MessageAttachments from "./MessageAttachments";
+import { MessageAttachment } from "@/types/database";
 
 type Message = {
   id: string;
@@ -16,7 +19,8 @@ type Message = {
   student_id: string;
   student_first_name: string;
   student_last_name1: string;
-  course_name: string | null; // nuevo campo
+  course_name: string | null;
+  attachments?: MessageAttachment[];
 };
 
 type MessageCardProps = {
@@ -47,6 +51,7 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
   };
 
   const formattedDate = format(new Date(message.date), "d 'de' MMMM, yyyy", { locale: es });
+  const hasAttachments = message.attachments && message.attachments.length > 0;
 
   return (
     <div
@@ -74,9 +79,12 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
             >
               ({message.student_first_name} {message.student_last_name1}) {message.title}
             </h3>
+
+            {hasAttachments && (
+              <Paperclip className="h-4 w-4 text-gray-400" />
+            )}
           </div>
 
-          {/* Nombre del curso */}
           {message.course_name && (
             <p className="text-sm text-gray-500 mt-1">
               Curso: <span className="font-medium">{message.course_name}</span>
@@ -113,6 +121,10 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
           <div className="text-gray-700 whitespace-pre-line">
             {message.content}
           </div>
+
+          {hasAttachments && (
+            <MessageAttachments attachments={message.attachments!} />
+          )}
         </div>
       )}
     </div>
