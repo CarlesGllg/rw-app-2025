@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import WelcomeHeader from "@/components/dashboard/WelcomeHeader";
@@ -90,6 +89,7 @@ const Dashboard = () => {
             }
 
             const formattedMessages = messagesData.map(item => {
+              // Fixed: Properly access the nested course data structure
               const courseName = item.students?.student_course?.[0]?.courses?.name || null;
               const messageAttachments = attachmentsData?.filter(att => att.message_id === item.message_id) || [];
 
