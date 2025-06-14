@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
@@ -7,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Bell, HelpCircle, Lock, Settings, User as UserIcon } from "lucide-react";
+import { Bell, Lock, Settings, User as UserIcon } from "lucide-react";
 import UserAvatar from "@/components/ui/UserAvatar";
 import StudentList from "@/components/dashboard/StudentList";
 import { useAuth } from "@/hooks/useAuth";
@@ -281,42 +280,6 @@ const Profile = () => {
                 </form>
               </DialogContent>
             </Dialog>
-          </div>
-
-          {/* Privacy Settings */}
-          <div className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="h-9 w-9 flex items-center justify-center bg-ios-blue/10 text-ios-blue rounded-full">
-                <Lock className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="font-medium">Privacidad y Seguridad</p>
-                <p className="text-sm text-gray-500">Configuración de privacidad</p>
-              </div>
-            </div>
-            
-            <Button variant="ghost" size="icon">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </div>
-        </section>
-
-        {/* Support Section */}
-        <section className="ios-card">
-          <div className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="h-9 w-9 flex items-center justify-center bg-ios-blue/10 text-ios-blue rounded-full">
-                <HelpCircle className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="font-medium">Ayuda y Soporte</p>
-                <p className="text-sm text-gray-500">Centro de ayuda y preguntas frecuentes</p>
-              </div>
-            </div>
-            
-            <Button variant="ghost" size="icon">
-              <Settings className="h-4 w-4" />
-            </Button>
           </div>
         </section>
         
