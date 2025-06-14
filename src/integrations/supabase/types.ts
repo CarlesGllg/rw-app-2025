@@ -203,6 +203,42 @@ export type Database = {
           },
         ]
       }
+      event_school: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          school_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          school_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_school_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_school_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string | null
@@ -313,27 +349,36 @@ export type Database = {
       messages: {
         Row: {
           content: string
+          created_at: string | null
+          created_by: string | null
           date: string | null
           id: string
           priority: string | null
           sender: string
           title: string
+          updated_at: string | null
         }
         Insert: {
           content: string
+          created_at?: string | null
+          created_by?: string | null
           date?: string | null
           id?: string
           priority?: string | null
           sender: string
           title: string
+          updated_at?: string | null
         }
         Update: {
           content?: string
+          created_at?: string | null
+          created_by?: string | null
           date?: string | null
           id?: string
           priority?: string | null
           sender?: string
           title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

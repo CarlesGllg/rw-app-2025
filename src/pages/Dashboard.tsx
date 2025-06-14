@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import WelcomeHeader from "@/components/dashboard/WelcomeHeader";
@@ -124,23 +125,61 @@ const Dashboard = () => {
 
             setMessages(formattedMessages);
           }
-        }
 
-        const today = new Date().toISOString().split("T")[0];
+          // Fetch events related to the students' schools
+          const today = new Date().toISOString().split("T")[0];
 
-        const { data: eventsData, error: eventsError } = await supabase
-          .from("events")
-          .select("*")
-          .gte("start_date", today)
-          .order("start_date", { ascending: true });
+          // First, get the courses for the students
+          const { data: studentCoursesData, error: studentCoursesError } = await supabase
+            .from("student_course")
+            .select(`
+              course_id,
+              courses:course_id(school_id)
+            `)
+            .in("student_id", studentIds);
 
-        if (eventsError) {
-          console.error("Error obteniendo eventos:", eventsError);
-        } else {
-          const uniqueEvents = eventsData.filter(
-            (event, index, self) => index === self.findIndex((e) => e.id === event.id)
-          );
-          setEvents(uniqueEvents);
+          if (studentCoursesError) {
+            console.error("Error obteniendo cursos de estudiantes:", studentCoursesError);
+          } else if (studentCoursesData?.length) {
+            // Get unique school IDs from the students' courses
+            const schoolIds = [...new Set(
+              studentCoursesData
+                .map(sc => sc.courses?.school_id)
+                .filter(Boolean)
+            )];
+
+            if (schoolIds.length > 0) {
+              // Get events assigned to these schools
+              const { data: eventSchoolData, error: eventSchoolError } = await supabase
+                .from("event_school")
+                .select(`
+                  event_id,
+                  events:event_id(*)
+                `)
+                .in("school_id", schoolIds);
+
+              if (eventSchoolError) {
+                console.error("Error obteniendo eventos de escuelas:", eventSchoolError);
+              } else if (eventSchoolData?.length) {
+                // Filter events that are upcoming and remove duplicates
+                const upcomingEvents = eventSchoolData
+                  .map(es => es.events)
+                  .filter(event => event && new Date(event.start_date) >= new Date(today))
+                  .filter((event, index, self) => 
+                    index === self.findIndex(e => e.id === event.id)
+                  )
+                  .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+
+                setEvents(upcomingEvents);
+              } else {
+                setEvents([]);
+              }
+            } else {
+              setEvents([]);
+            }
+          } else {
+            setEvents([]);
+          }
         }
 
       } catch (error) {
