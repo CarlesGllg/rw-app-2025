@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import DocumentCard from "./DocumentCard";
 import { supabase } from "@/lib/supabase";
@@ -60,18 +61,30 @@ const DocumentList = () => {
 
   useEffect(() => {
     const fetchParentId = async () => {
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("id")
-        .maybeSingle();
+      console.log("=== STARTING fetchParentId ===");
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError) {
+          console.error("Error al obtener usuario:", userError.message);
+          setError("Error al obtener usuario");
+          setLoading(false);
+          return;
+        }
 
-      if (error) {
-        console.error("Error al obtener el perfil:", error.message);
-        return;
-      }
+        if (!user) {
+          console.error("No hay usuario autenticado");
+          setError("No hay usuario autenticado");
+          setLoading(false);
+          return;
+        }
 
-      if (profile) {
-        setParentId(profile.id);
+        console.log("Usuario obtenido:", user.id);
+        setParentId(user.id);
+      } catch (err) {
+        console.error("Error en fetchParentId:", err);
+        setError("Error al obtener el usuario");
+        setLoading(false);
       }
     };
 
@@ -80,26 +93,42 @@ const DocumentList = () => {
 
   useEffect(() => {
     const fetchDocuments = async () => {
-      if (!parentId) return;
+      if (!parentId) {
+        console.log("No parentId yet, skipping fetchDocuments");
+        return;
+      }
+      
+      console.log("=== STARTING fetchDocuments for parentId:", parentId, "===");
       setLoading(true);
       setError(null);
 
       try {
+        // Step 1: Get student relationships
+        console.log("Step 1: Fetching student relationships");
         const { data: studentData, error: studentError } = await supabase
           .from("student_parent")
           .select("student_id")
           .eq("parent_id", parentId);
 
-        if (studentError) throw new Error(studentError.message);
+        if (studentError) {
+          console.error("Student relationship error:", studentError);
+          throw new Error(studentError.message);
+        }
 
+        console.log("Student data:", studentData);
         const studentIds = studentData.map((row) => row.student_id);
 
         if (studentIds.length === 0) {
+          console.log("No students found, setting empty documents");
           setDocuments([]);
           setLoading(false);
           return;
         }
 
+        console.log("Student IDs:", studentIds);
+
+        // Step 2: Get document links
+        console.log("Step 2: Fetching document links");
         const { data: docLinks, error: docLinkError } = await supabase
           .from("document_student")
           .select(`
@@ -122,19 +151,32 @@ const DocumentList = () => {
             )
           `)
           .or(`is_global.eq.true,student_id.in.(${studentIds.join(",")})`)
-          .order("created_at", { ascending: false }); // Orden por fecha de vinculación
+          .order("created_at", { ascending: false });
 
-        if (docLinkError) throw new Error(docLinkError.message);
+        if (docLinkError) {
+          console.error("Document link error:", docLinkError);
+          throw new Error(docLinkError.message);
+        }
 
+        console.log("Raw document links:", docLinks);
+
+        // Step 3: Process documents
+        console.log("Step 3: Processing documents");
         const parsedDocs: SupabaseDocument[] = (docLinks ?? [])
-          .filter((link) => link.documents)
+          .filter((link) => {
+            const hasDocument = !!link.documents;
+            if (!hasDocument) {
+              console.log("Filtering out link without document:", link);
+            }
+            return hasDocument;
+          })
           .map((link) => ({
             id: link.documents.id,
             title: link.documents.title,
             description: link.documents.description ?? "",
             type: mapFileType(link.documents.file_type),
             url: link.documents.file_url,
-            date: link.created_at, // Fecha de vinculación
+            date: link.created_at,
             category: link.documents.category?.name ?? "Sin categoría",
             is_global: link.is_global,
             student_name: link.is_global
@@ -144,18 +186,23 @@ const DocumentList = () => {
                 : undefined
           }));
 
+        console.log("Parsed documents:", parsedDocs);
+
         setDocuments(parsedDocs);
 
         const uniqueCategories = [
           ...new Set(parsedDocs.map((doc) => doc.category))
         ];
+        console.log("Categories:", uniqueCategories);
         setCategories(uniqueCategories);
-      } catch (err: any) {
-        console.error("Error al cargar documentos:", err.message);
-        setError("Error al cargar los documentos.");
-      }
 
-      setLoading(false);
+      } catch (err: any) {
+        console.error("Error al cargar documentos:", err);
+        setError("Error al cargar los documentos: " + err.message);
+      } finally {
+        console.log("=== FINISHED fetchDocuments ===");
+        setLoading(false);
+      }
     };
 
     fetchDocuments();
@@ -172,6 +219,8 @@ const DocumentList = () => {
   const filteredDocuments = activeCategory
     ? documents.filter((doc) => doc.category === activeCategory)
     : documents;
+
+  console.log("Render state - loading:", loading, "error:", error, "documents count:", documents.length);
 
   if (loading) {
     return (
