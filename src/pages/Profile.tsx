@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
@@ -22,7 +21,7 @@ type Student = {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,13 +33,23 @@ const Profile = () => {
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
 
+  console.log('Profile - Auth loading:', authLoading, 'User:', user);
+
   useEffect(() => {
+    if (authLoading) {
+      console.log('Profile - Still loading auth...');
+      return;
+    }
+    
     if (!user) {
+      console.log('Profile - No user, redirecting to login');
       navigate("/login");
       return;
     }
+    
+    console.log('Profile - User found, fetching students');
     fetchStudents();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const fetchStudents = async () => {
     if (!user) return;
@@ -134,6 +143,15 @@ const Profile = () => {
       setPasswordLoading(false);
     }
   };
+
+  // Show loading while auth is still loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!user) {
     return null;

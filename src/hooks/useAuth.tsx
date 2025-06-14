@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -22,6 +23,71 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
     
+    // Check for existing session immediately
+    const checkSession = async () => {
+      if (authCheckedRef.current) return;
+      
+      try {
+        console.log('Checking existing session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          if (mounted) {
+            setLoading(false);
+            authCheckedRef.current = true;
+          }
+          return;
+        }
+        
+        if (!mounted) return;
+        
+        if (session?.user) {
+          console.log('Found existing session for:', session.user.email);
+          
+          try {
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .maybeSingle();
+
+            if (profileError) {
+              console.error("Error fetching user profile:", profileError);
+            }
+
+            if (mounted) {
+              const userData = {
+                id: session.user.id,
+                email: session.user.email!,
+                role: (profile?.role as UserRole) || 'parent',
+                full_name: profile?.full_name || session.user.user_metadata.full_name || null,
+                created_at: profile?.created_at || session.user.created_at,
+                updated_at: profile?.updated_at || session.user.updated_at || session.user.created_at
+              };
+              console.log('Setting user data:', userData);
+              setUser(userData);
+            }
+          } catch (error) {
+            console.error("Error fetching profile:", error);
+          }
+        } else {
+          console.log('No existing session found');
+        }
+        
+        if (mounted) {
+          setLoading(false);
+          authCheckedRef.current = true;
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+        if (mounted) {
+          setLoading(false);
+          authCheckedRef.current = true;
+        }
+      }
+    };
+    
     // Set up the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session?.user?.email);
@@ -44,14 +110,16 @@ export function useAuth() {
           }
           
           if (mounted) {
-            setUser({
+            const userData = {
               id: session.user.id,
               email: session.user.email!,
               role: (profile?.role as UserRole) || 'parent',
               full_name: profile?.full_name || session.user.user_metadata.full_name || null,
               created_at: profile?.created_at || session.user.created_at,
               updated_at: profile?.updated_at || session.user.updated_at || session.user.created_at
-            });
+            };
+            console.log('User signed in, setting user data:', userData);
+            setUser(userData);
             setLoading(false);
           }
         } catch (error) {
@@ -71,69 +139,6 @@ export function useAuth() {
         // Keep existing user data, just refresh the session
       }
     });
-    
-    // Check for existing session
-    const checkSession = async () => {
-      if (authCheckedRef.current) return;
-      
-      try {
-        console.log('Checking existing session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error getting session:', error);
-          if (mounted) {
-            setLoading(false);
-            authCheckedRef.current = true;
-          }
-          return;
-        }
-        
-        if (!mounted) return;
-        
-        if (session) {
-          console.log('Found existing session for:', session.user.email);
-          
-          try {
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .maybeSingle();
-
-            if (profileError) {
-              console.error("Error fetching user profile:", profileError);
-            }
-
-            if (mounted) {
-              setUser({
-                id: session.user.id,
-                email: session.user.email!,
-                role: (profile?.role as UserRole) || 'parent',
-                full_name: profile?.full_name || session.user.user_metadata.full_name || null,
-                created_at: profile?.created_at || session.user.created_at,
-                updated_at: profile?.updated_at || session.user.updated_at || session.user.created_at
-              });
-            }
-          } catch (error) {
-            console.error("Error fetching profile:", error);
-          }
-        } else {
-          console.log('No existing session found');
-        }
-        
-        if (mounted) {
-          setLoading(false);
-          authCheckedRef.current = true;
-        }
-      } catch (error) {
-        console.error("Error checking session:", error);
-        if (mounted) {
-          setLoading(false);
-          authCheckedRef.current = true;
-        }
-      }
-    };
     
     checkSession();
     
