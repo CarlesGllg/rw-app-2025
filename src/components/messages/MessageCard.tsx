@@ -53,7 +53,7 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
   const formattedDate = format(new Date(message.date), "d 'de' MMMM, yyyy", { locale: es });
   const hasAttachments = message.attachments && message.attachments.length > 0;
 
-  console.log(`Message ${message.id} has ${hasAttachments ? message.attachments.length : 0} attachments`);
+  console.log(`Message ${message.id} has ${hasAttachments ? message.attachments!.length : 0} attachments:`, message.attachments);
 
   return (
     <div
@@ -83,7 +83,10 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
             </h3>
 
             {hasAttachments && (
-              <Paperclip className="h-4 w-4 text-gray-400 flex-shrink-0" />
+              <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md">
+                <Paperclip className="h-4 w-4 text-gray-600" />
+                <span className="text-xs text-gray-600">{message.attachments!.length}</span>
+              </div>
             )}
           </div>
 
