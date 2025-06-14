@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import LoginForm from "@/components/auth/LoginForm";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ const Login = () => {
           {/* Aquí cambiamos el texto por la imagen */}
           <img
             src="/logo_txt_transp.png" // Asegúrate de que la imagen esté en el directorio raíz
-            alt="Colegio App"
+            alt="Right Way English School"
             className="mx-auto" // Esto centra la imagen
           />
           <p className="text-center text-gray-500 mt-1">Portal para Padres</p>
@@ -37,7 +38,7 @@ const Login = () => {
       </main>
       
       <footer className="py-4 text-center text-sm text-gray-500">
-        <p>&copy; 2025 Colegio App. Todos los derechos reservados.</p>
+        <p>&copy; 2025 Right Way English School. Todos los derechos reservados.</p>
       </footer> 
     </div> 
   ); 

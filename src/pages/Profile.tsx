@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
@@ -333,7 +334,7 @@ const Profile = () => {
         
         <div className="text-center text-xs text-gray-500 py-4">
           <p>Versión 1.0.0</p>
-          <p>&copy; 2025 Colegio App. Todos los derechos reservados.</p>
+          <p>&copy; 2025 Right Way English School. Todos los derechos reservados.</p>
         </div>
       </div>
     </AppLayout>

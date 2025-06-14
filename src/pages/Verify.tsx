@@ -99,7 +99,7 @@ const Verify = () => {
       </main>
       
       <footer className="py-4 text-center text-sm text-gray-500">
-        <p>&copy; 2025 Colegio App. Todos los derechos reservados.</p>
+        <p>&copy; 2025 Right Way English School. Todos los derechos reservados.</p>
       </footer>
     </div>
   );
