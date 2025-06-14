@@ -106,6 +106,9 @@ const MessageList = () => {
           console.error("Error al obtener cursos:", studentCourseError.message);
         }
 
+        // Enhanced debugging for attachments
+        console.log('Fetching attachments for message IDs:', messageIds);
+        
         // Obtener adjuntos para todos los mensajes
         const { data: attachmentsData, error: attachmentsError } = await supabase
           .from("message_attachments")
@@ -116,7 +119,11 @@ const MessageList = () => {
           console.error("Error al obtener adjuntos:", attachmentsError.message);
         }
 
-        console.log("Attachments data:", attachmentsData);
+        console.log("Raw attachments data from DB:", attachmentsData);
+
+        // Check for specific message
+        const specificMessageAttachments = attachmentsData?.filter(att => att.message_id === '5f1a3bc3-2b57-4a46-9305-73ba638b1448');
+        console.log('Attachments for message 5f1a3bc3-2b57-4a46-9305-73ba638b1448:', specificMessageAttachments);
 
         const filteredMessages = allMessagesData?.filter((msg) =>
           messageIds.includes(msg.id)
@@ -129,10 +136,10 @@ const MessageList = () => {
             const courseName = studentCourse?.courses?.name || null;
             const messageAttachments = attachmentsData?.filter(att => att.message_id === link.message_id) || [];
 
-            console.log(`Message ${link.message_id} attachments:`, messageAttachments);
+            console.log(`Processing message ${link.message_id}, found ${messageAttachments.length} attachments`);
 
             if (message && link.students) {
-              return {
+              const formattedMessage = {
                 id: message.id,
                 title: message.title,
                 content: message.content,
@@ -146,12 +153,22 @@ const MessageList = () => {
                 course_name: courseName,
                 attachments: messageAttachments,
               };
+
+              // Debug specific message
+              if (message.id === '5f1a3bc3-2b57-4a46-9305-73ba638b1448') {
+                console.log('=== FORMATTING SPECIFIC MESSAGE ===');
+                console.log('Formatted message:', formattedMessage);
+                console.log('messageAttachments:', messageAttachments);
+                console.log('=== END FORMATTING ===');
+              }
+
+              return formattedMessage;
             }
             return null;
           })
           .filter((msg): msg is Message => msg !== null);
 
-        console.log("Formatted messages with attachments:", formattedMessages);
+        console.log("Final formatted messages:", formattedMessages);
         setMessages(formattedMessages);
       } catch (error) {
         console.error("Error general al cargar los mensajes:", error);

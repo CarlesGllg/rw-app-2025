@@ -53,6 +53,17 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
   const formattedDate = format(new Date(message.date), "d 'de' MMMM, yyyy", { locale: es });
   const hasAttachments = message.attachments && message.attachments.length > 0;
 
+  // Enhanced debugging for specific message
+  if (message.id === '5f1a3bc3-2b57-4a46-9305-73ba638b1448') {
+    console.log('=== DEBUGGING MESSAGE 5f1a3bc3-2b57-4a46-9305-73ba638b1448 ===');
+    console.log('message.attachments:', message.attachments);
+    console.log('message.attachments type:', typeof message.attachments);
+    console.log('message.attachments is array:', Array.isArray(message.attachments));
+    console.log('hasAttachments:', hasAttachments);
+    console.log('message full object:', message);
+    console.log('=== END DEBUG ===');
+  }
+
   console.log(`Message ${message.id} has ${hasAttachments ? message.attachments!.length : 0} attachments:`, message.attachments);
 
   return (
