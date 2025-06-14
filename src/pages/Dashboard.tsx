@@ -53,6 +53,7 @@ const Dashboard = () => {
             setStudents(studentsData || []);
           }
 
+          // Updated query to properly get course information
           const { data: messagesData, error: messagesError } = await supabase
             .from("message_student")
             .select(`
@@ -64,10 +65,7 @@ const Dashboard = () => {
               students:student_id(
                 id,
                 first_name,
-                last_name1,
-                student_course(
-                  courses(name)
-                )
+                last_name1
               )
             `)
             .in("student_id", studentIds)
@@ -77,6 +75,19 @@ const Dashboard = () => {
           if (messagesError) {
             console.error("Error obteniendo mensajes:", messagesError);
           } else if (messagesData) {
+            // Get course information separately for each student
+            const { data: studentCourseData, error: studentCourseError } = await supabase
+              .from("student_course")
+              .select(`
+                student_id,
+                courses:course_id(name)
+              `)
+              .in("student_id", studentIds);
+
+            if (studentCourseError) {
+              console.error("Error obteniendo cursos:", studentCourseError);
+            }
+
             // Obtener adjuntos para los mensajes
             const messageIds = messagesData.map(item => item.message_id);
             const { data: attachmentsData, error: attachmentsError } = await supabase
@@ -89,8 +100,9 @@ const Dashboard = () => {
             }
 
             const formattedMessages = messagesData.map(item => {
-              // Fixed: Properly access the nested course data structure
-              const courseName = item.students?.student_course?.[0]?.courses?.name || null;
+              // Get course name for the student
+              const studentCourse = studentCourseData?.find(sc => sc.student_id === item.student_id);
+              const courseName = studentCourse?.courses?.name || null;
               const messageAttachments = attachmentsData?.filter(att => att.message_id === item.message_id) || [];
 
               return {

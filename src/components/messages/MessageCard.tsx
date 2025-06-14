@@ -53,6 +53,8 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
   const formattedDate = format(new Date(message.date), "d 'de' MMMM, yyyy", { locale: es });
   const hasAttachments = message.attachments && message.attachments.length > 0;
 
+  console.log(`Message ${message.id} has ${hasAttachments ? message.attachments.length : 0} attachments`);
+
   return (
     <div
       className={cn(

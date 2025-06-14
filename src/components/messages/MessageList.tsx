@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import MessageCard from "./MessageCard";
 import { supabase } from "@/lib/supabase";
@@ -70,12 +69,7 @@ const MessageList = () => {
             message_id,
             students (
               first_name,
-              last_name1,
-              student_course (
-                courses (
-                  name
-                )
-              )
+              last_name1
             )
           `)
           .in("student_id", studentIds)
@@ -99,6 +93,19 @@ const MessageList = () => {
           return;
         }
 
+        // Get course information for students
+        const { data: studentCourseData, error: studentCourseError } = await supabase
+          .from("student_course")
+          .select(`
+            student_id,
+            courses:course_id(name)
+          `)
+          .in("student_id", studentIds);
+
+        if (studentCourseError) {
+          console.error("Error al obtener cursos:", studentCourseError.message);
+        }
+
         // Obtener adjuntos para todos los mensajes
         const { data: attachmentsData, error: attachmentsError } = await supabase
           .from("message_attachments")
@@ -118,7 +125,8 @@ const MessageList = () => {
         const formattedMessages: Message[] = messageLinks
           .map((link) => {
             const message = filteredMessages?.find((msg) => msg.id === link.message_id);
-            const courseName = link.students?.student_course?.[0]?.courses?.name || null;
+            const studentCourse = studentCourseData?.find(sc => sc.student_id === link.student_id);
+            const courseName = studentCourse?.courses?.name || null;
             const messageAttachments = attachmentsData?.filter(att => att.message_id === link.message_id) || [];
 
             console.log(`Message ${link.message_id} attachments:`, messageAttachments);
