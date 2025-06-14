@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -23,21 +24,34 @@ const LoginForm = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
+        console.log('Attempting login for:', email);
+        
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Login error:', error);
+          if (error.message.includes('Invalid login credentials')) {
+            toast.error("Credenciales incorrectas. Verifica tu email y contraseña.");
+          } else if (error.message.includes('Email not confirmed')) {
+            toast.error("Por favor verifica tu correo electrónico antes de iniciar sesión.");
+          } else {
+            toast.error(error.message || "Error al iniciar sesión");
+          }
+          return;
+        }
 
+        console.log('Login successful for:', data.user?.email);
         navigate("/dashboard");
         toast.success("¡Bienvenido de nuevo!");
       } else {
-        // 💬 Nuevo: Verificar si el correo está permitido
+        // Verificar si el correo está permitido
         const { data, error: fetchError } = await supabase
           .from("allowed_emails")
           .select("email")
-          .eq("email", email)
+          .eq("email", email.trim())
           .single();
 
         if (fetchError || !data) {
@@ -47,7 +61,7 @@ const LoginForm = () => {
 
         // Si el correo está permitido, continuar el registro
         const { error } = await supabase.auth.signUp({
-          email,
+          email: email.trim(),
           password,
           options: {
             data: {
@@ -57,12 +71,21 @@ const LoginForm = () => {
           },
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Signup error:', error);
+          if (error.message.includes('User already registered')) {
+            toast.error("Este correo ya está registrado. Intenta iniciar sesión.");
+          } else {
+            toast.error(error.message || "Error en el registro");
+          }
+          return;
+        }
 
         navigate("/verificar", { state: { email } });
         toast.success("Por favor revisa tu correo para verificar tu cuenta");
       }
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast.error(error.message || "Error en la autenticación");
     } finally {
       setIsLoading(false);
@@ -105,6 +128,7 @@ const LoginForm = () => {
               className="w-full pl-10 py-2 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ios-blue text-sm"
               placeholder="tu@correo.com"
               required
+              autoComplete="email"
             />
           </div>
         </div>
@@ -124,6 +148,7 @@ const LoginForm = () => {
               placeholder="Tu contraseña"
               required
               minLength={6}
+              autoComplete={isLogin ? "current-password" : "new-password"}
             />
           </div>
         </div>

@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -19,128 +18,119 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const authCheckedRef = useRef(false);
-  const authInProgressRef = useRef(false);
   
   useEffect(() => {
-    // Guard to prevent multiple concurrent auth checks
-    if (authInProgressRef.current) return;
-    
     let mounted = true;
-    authInProgressRef.current = true;
     
-    // First, set up the auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      // Only proceed if component is still mounted
+    // Set up the auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
+      
       if (!mounted) return;
       
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        if (session) {
-          // Set basic user data immediately from session
-          setUser({
-            id: session.user.id,
-            email: session.user.email!,
-            role: 'parent' as UserRole,
-            full_name: session.user.user_metadata.full_name,
-            created_at: session.user.created_at,
-            updated_at: session.user.created_at
-          });
+      if (event === 'SIGNED_IN' && session) {
+        console.log('User signed in:', session.user.email);
+        
+        try {
+          // Fetch user profile from profiles table
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .maybeSingle();
+            
+          if (error) {
+            console.error("Error fetching user profile:", error);
+          }
           
-          // Use setTimeout to safely fetch profile data after the auth state is updated
-          setTimeout(async () => {
-            try {
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .maybeSingle();
-                
-              if (mounted && profile) {
-                setUser(prev => ({
-                  ...prev!,
-                  role: profile.role as UserRole,
-                  full_name: profile.full_name,
-                  created_at: profile.created_at,
-                  updated_at: profile.updated_at
-                }));
-              }
-            } catch (error) {
-              console.error("Error fetching user profile in timeout:", error);
-            } finally {
-              if (mounted) {
-                setLoading(false);
-                authCheckedRef.current = true;
-                authInProgressRef.current = false;
-              }
-            }
-          }, 0);
-        }
-      } else if (event === 'SIGNED_OUT') {
-        if (mounted) {
-          setUser(null);
-          setLoading(false);
-          authCheckedRef.current = true;
-          authInProgressRef.current = false;
-        }
-      }
-    });
-    
-    // Then check for existing session - but only if we haven't already checked
-    const checkSession = async () => {
-      if (authCheckedRef.current) {
-        authInProgressRef.current = false;
-        return;
-      }
-      
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        // Only proceed if component is still mounted
-        if (!mounted) return;
-        
-        if (session) {
-          try {
-            // Set basic user data immediately from session
+          if (mounted) {
             setUser({
               id: session.user.id,
               email: session.user.email!,
-              role: 'parent' as UserRole,
-              full_name: session.user.user_metadata.full_name,
-              created_at: session.user.created_at,
-              updated_at: session.user.created_at
+              role: (profile?.role as UserRole) || 'parent',
+              full_name: profile?.full_name || session.user.user_metadata.full_name || null,
+              created_at: profile?.created_at || session.user.created_at,
+              updated_at: profile?.updated_at || session.user.updated_at || session.user.created_at
             });
-            
-            // Then fetch profile data separately
-            const { data: profile } = await supabase
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error("Error in auth state change:", error);
+          if (mounted) {
+            setLoading(false);
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out');
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
+      } else if (event === 'TOKEN_REFRESHED' && session) {
+        console.log('Token refreshed for:', session.user.email);
+        // Keep existing user data, just refresh the session
+      }
+    });
+    
+    // Check for existing session
+    const checkSession = async () => {
+      if (authCheckedRef.current) return;
+      
+      try {
+        console.log('Checking existing session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          if (mounted) {
+            setLoading(false);
+            authCheckedRef.current = true;
+          }
+          return;
+        }
+        
+        if (!mounted) return;
+        
+        if (session) {
+          console.log('Found existing session for:', session.user.email);
+          
+          try {
+            const { data: profile, error: profileError } = await supabase
               .from('profiles')
               .select('*')
               .eq('id', session.user.id)
               .maybeSingle();
 
-            if (mounted && profile) {
-              setUser(prev => ({
-                ...prev!,
-                role: profile.role as UserRole,
-                full_name: profile.full_name,
-                created_at: profile.created_at,
-                updated_at: profile.updated_at
-              }));
+            if (profileError) {
+              console.error("Error fetching user profile:", profileError);
+            }
+
+            if (mounted) {
+              setUser({
+                id: session.user.id,
+                email: session.user.email!,
+                role: (profile?.role as UserRole) || 'parent',
+                full_name: profile?.full_name || session.user.user_metadata.full_name || null,
+                created_at: profile?.created_at || session.user.created_at,
+                updated_at: profile?.updated_at || session.user.updated_at || session.user.created_at
+              });
             }
           } catch (error) {
-            console.error("Error fetching user profile:", error);
+            console.error("Error fetching profile:", error);
           }
+        } else {
+          console.log('No existing session found');
         }
         
         if (mounted) {
           setLoading(false);
           authCheckedRef.current = true;
-          authInProgressRef.current = false;
         }
       } catch (error) {
         console.error("Error checking session:", error);
         if (mounted) {
           setLoading(false);
           authCheckedRef.current = true;
-          authInProgressRef.current = false;
         }
       }
     };
@@ -155,11 +145,19 @@ export function useAuth() {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      console.log('Signing out user...');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+        toast.error('Error al cerrar sesión');
+        return;
+      }
+      
       setUser(null);
       navigate('/login', { replace: true });
       toast.success('Sesión cerrada exitosamente');
     } catch (error: any) {
+      console.error('Error in signOut:', error);
       toast.error('Error al cerrar sesión');
     }
   };
