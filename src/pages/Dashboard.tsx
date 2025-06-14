@@ -40,8 +40,11 @@ const Dashboard = () => {
           return;
         }
 
+        console.log("Student parent data:", studentParentData);
+
         if (studentParentData?.length) {
           const studentIds = studentParentData.map(sp => sp.student_id);
+          console.log("Student IDs:", studentIds);
 
           const { data: studentsData, error: studentsError } = await supabase
             .from("students")
@@ -129,17 +132,23 @@ const Dashboard = () => {
           // Fetch events related to the students' schools
           const today = new Date().toISOString().split("T")[0];
 
-          // First, get the courses for the students
+          // First, get the courses for the students to identify their schools
           const { data: studentCoursesData, error: studentCoursesError } = await supabase
             .from("student_course")
             .select(`
               course_id,
-              courses:course_id(school_id)
+              courses:course_id(
+                id,
+                school_id
+              )
             `)
             .in("student_id", studentIds);
 
+          console.log("Student courses data:", studentCoursesData);
+
           if (studentCoursesError) {
             console.error("Error obteniendo cursos de estudiantes:", studentCoursesError);
+            setEvents([]);
           } else if (studentCoursesData?.length) {
             // Get unique school IDs from the students' courses
             const schoolIds = [...new Set(
@@ -148,38 +157,60 @@ const Dashboard = () => {
                 .filter(Boolean)
             )];
 
+            console.log("School IDs:", schoolIds);
+
             if (schoolIds.length > 0) {
               // Get events assigned to these schools
               const { data: eventSchoolData, error: eventSchoolError } = await supabase
                 .from("event_school")
                 .select(`
                   event_id,
-                  events:event_id(*)
+                  events:event_id(
+                    id,
+                    title,
+                    description,
+                    start_date,
+                    created_at,
+                    updated_at
+                  )
                 `)
                 .in("school_id", schoolIds);
 
+              console.log("Event school data:", eventSchoolData);
+
               if (eventSchoolError) {
                 console.error("Error obteniendo eventos de escuelas:", eventSchoolError);
+                setEvents([]);
               } else if (eventSchoolData?.length) {
                 // Filter events that are upcoming and remove duplicates
-                const upcomingEvents = eventSchoolData
-                  .map(es => es.events)
-                  .filter(event => event && new Date(event.start_date) >= new Date(today))
-                  .filter((event, index, self) => 
-                    index === self.findIndex(e => e.id === event.id)
-                  )
+                const uniqueEvents = new Map();
+                
+                eventSchoolData.forEach(es => {
+                  if (es.events && new Date(es.events.start_date) >= new Date(today)) {
+                    uniqueEvents.set(es.events.id, es.events);
+                  }
+                });
+
+                const upcomingEvents = Array.from(uniqueEvents.values())
                   .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
 
+                console.log("Final upcoming events:", upcomingEvents);
                 setEvents(upcomingEvents);
               } else {
+                console.log("No event school data found");
                 setEvents([]);
               }
             } else {
+              console.log("No school IDs found");
               setEvents([]);
             }
           } else {
+            console.log("No student courses data found");
             setEvents([]);
           }
+        } else {
+          console.log("No student parent data found");
+          setEvents([]);
         }
 
       } catch (error) {
