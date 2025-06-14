@@ -5,33 +5,84 @@ import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { Bell, HelpCircle, Lock, Mail, Settings, User as UserIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Bell, HelpCircle, Lock, Settings, User as UserIcon } from "lucide-react";
 import UserAvatar from "@/components/ui/UserAvatar";
+import StudentList from "@/components/dashboard/StudentList";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+
+type Student = {
+  id: string;
+  first_name: string;
+  last_name1: string;
+};
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const { user, signOut } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
-    } else {
-      navigate("/");
+    if (!user) {
+      navigate("/login");
+      return;
     }
-  }, [navigate]);
+    fetchStudents();
+  }, [user, navigate]);
 
-  if (!user) {
-    return null;
-  }
+  const fetchStudents = async () => {
+    if (!user) return;
+    
+    try {
+      console.log("Fetching students for parent:", user.id);
+      
+      const { data: studentsData, error } = await supabase
+        .from('student_parent')
+        .select(`
+          students (
+            id,
+            first_name,
+            last_name1
+          )
+        `)
+        .eq('parent_id', user.id);
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    toast.success("Sesión cerrada");
-    navigate("/");
+      if (error) {
+        console.error("Error fetching students:", error);
+        toast.error("Error al cargar los estudiantes");
+        return;
+      }
+
+      console.log("Students data:", studentsData);
+      
+      const studentsList = studentsData
+        ?.map(item => item.students)
+        .filter(Boolean)
+        .flat() as Student[];
+
+      setStudents(studentsList || []);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+      toast.error("Error al cargar los estudiantes");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut();
   };
 
   const toggleNotifications = () => {
@@ -43,21 +94,82 @@ const Profile = () => {
     );
   };
 
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error("Las contraseñas no coinciden");
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      toast.error("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordForm.newPassword
+      });
+
+      if (error) {
+        console.error("Error updating password:", error);
+        toast.error("Error al cambiar la contraseña");
+        return;
+      }
+
+      toast.success("Contraseña actualizada exitosamente");
+      setIsPasswordDialogOpen(false);
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+      });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      toast.error("Error al cambiar la contraseña");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  if (loading) {
+    return (
+      <AppLayout title="Perfil">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-gray-500">Cargando perfil...</div>
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout title="Perfil">
       <div className="space-y-6">
         {/* Profile Header */}
         <section className="ios-card p-6 flex flex-col items-center text-center">
           <div className="mb-4">
-            <UserAvatar name={user.name} role={user.role} size="lg" />
+            <UserAvatar name={user.full_name || user.email} role={user.role} size="lg" />
           </div>
           
-          <h2 className="text-xl font-bold">{user.name}</h2>
+          <h2 className="text-xl font-bold">{user.full_name || "Usuario"}</h2>
           <p className="text-gray-500">{user.email}</p>
-          
-          <div className="mt-4">
-            <Button className="ios-button">Actualizar Perfil</Button>
-          </div>
+          <p className="text-sm text-gray-400 capitalize">{user.role}</p>
+        </section>
+
+        {/* Students Section */}
+        <section className="ios-card p-6">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <UserIcon className="h-5 w-5" />
+            Estudiantes Asociados
+          </h3>
+          <StudentList students={students} />
         </section>
 
         {/* Settings Section */}
@@ -85,6 +197,73 @@ const Profile = () => {
             />
           </div>
 
+          {/* Password Change */}
+          <div className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="h-9 w-9 flex items-center justify-center bg-ios-blue/10 text-ios-blue rounded-full">
+                <Lock className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="font-medium">Cambiar Contraseña</p>
+                <p className="text-sm text-gray-500">Actualiza tu contraseña de acceso</p>
+              </div>
+            </div>
+            
+            <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Cambiar Contraseña</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handlePasswordChange} className="space-y-4">
+                  <div>
+                    <Label htmlFor="newPassword">Nueva Contraseña</Label>
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setIsPasswordDialogOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      disabled={passwordLoading}
+                    >
+                      {passwordLoading ? "Actualizando..." : "Actualizar"}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+
           {/* Privacy Settings */}
           <div className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -93,7 +272,7 @@ const Profile = () => {
               </span>
               <div>
                 <p className="font-medium">Privacidad y Seguridad</p>
-                <p className="text-sm text-gray-500">Contraseña y datos personales</p>
+                <p className="text-sm text-gray-500">Configuración de privacidad</p>
               </div>
             </div>
             
