@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router-dom";
 
 type Message = {
   id: string;
@@ -31,6 +32,7 @@ type RecentMessagesProps = {
 
 const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
   const [localMessages, setLocalMessages] = useState(messages);
+  const navigate = useNavigate();
 
   // Update local state when props change
   React.useEffect(() => {
@@ -70,6 +72,10 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
     }
   };
 
+  const handleMessageClick = () => {
+    navigate("/messages");
+  };
+
   const priorityColors = {
     high: "bg-red-100 text-red-800 border-red-200",
     medium: "bg-orange-100 text-orange-800 border-orange-200",
@@ -104,9 +110,12 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
           <h2 className="text-xl font-bold text-ios-darkText">
             Mensajes Recientes
           </h2>
-          <a href="/messages" className="text-ios-blue text-sm font-medium">
+          <button 
+            onClick={handleMessageClick}
+            className="text-ios-blue text-sm font-medium hover:underline"
+          >
             Ver todos
-          </a>
+          </button>
         </div>
 
         <div className="space-y-3">
@@ -121,9 +130,10 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
               <div
                 key={`${message.message_id}-${message.student_id}`}
                 className={cn(
-                  "group p-3 rounded-lg border transition-colors hover:bg-gray-50",
+                  "group p-3 rounded-lg border transition-colors hover:bg-gray-50 cursor-pointer",
                   !message.read && "border-l-4 border-l-ios-blue bg-blue-50/30"
                 )}
+                onClick={handleMessageClick}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
@@ -164,7 +174,10 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
                   <div className="flex items-center gap-1 ml-2">
                     {message.read && (
                       <button
-                        onClick={() => handleMarkAsUnread(message.message_id, message.student_id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMarkAsUnread(message.message_id, message.student_id);
+                        }}
                         className="p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Marcar como no leído"
                       >
@@ -178,7 +191,10 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
                 <div className="mt-2 flex gap-2">
                   {!message.read && (
                     <button
-                      onClick={() => onMarkAsRead(message.message_id, message.student_id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMarkAsRead(message.message_id, message.student_id);
+                      }}
                       className="text-xs text-ios-blue hover:underline"
                     >
                       Marcar como leído
