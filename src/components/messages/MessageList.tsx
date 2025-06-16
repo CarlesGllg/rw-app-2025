@@ -1,6 +1,8 @@
+
 import { useEffect, useState } from "react";
 import MessageCard from "./MessageCard";
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 import { MessageAttachment } from "@/types/database";
 
 type Message = {
@@ -195,6 +197,42 @@ const MessageList = () => {
 
     if (error) {
       console.error("Error al marcar como leído:", error.message);
+      toast.error("Error al marcar como leído");
+      // Revert optimistic update
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === id && msg.student_id === student_id ? { ...msg, read: false } : msg
+        )
+      );
+    } else {
+      toast.success("Mensaje marcado como leído");
+    }
+  };
+
+  const markAsUnread = async (id: string, student_id: string) => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === id && msg.student_id === student_id ? { ...msg, read: false } : msg
+      )
+    );
+
+    const { error } = await supabase
+      .from("message_student")
+      .update({ read: false })
+      .eq("message_id", id)
+      .eq("student_id", student_id);
+
+    if (error) {
+      console.error("Error al marcar como no leído:", error.message);
+      toast.error("Error al marcar como no leído");
+      // Revert optimistic update
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === id && msg.student_id === student_id ? { ...msg, read: true } : msg
+        )
+      );
+    } else {
+      toast.success("Mensaje marcado como no leído");
     }
   };
 
@@ -221,6 +259,7 @@ const MessageList = () => {
           key={`${message.id}-${message.student_id}`}
           message={message}
           onMarkAsRead={() => markAsRead(message.id, message.student_id)}
+          onMarkAsUnread={() => markAsUnread(message.id, message.student_id)}
         />
       ))}
     </div>

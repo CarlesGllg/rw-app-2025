@@ -2,8 +2,9 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { AlertCircle, ChevronDown, ChevronUp, Paperclip } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronUp, Paperclip, MailOpen, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import MessageAttachments from "./MessageAttachments";
 import { MessageAttachment } from "@/types/database";
@@ -26,9 +27,10 @@ type Message = {
 type MessageCardProps = {
   message: Message;
   onMarkAsRead: (id: string, student_id: string) => void;
+  onMarkAsUnread?: (id: string, student_id: string) => void;
 };
 
-const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
+const MessageCard = ({ message, onMarkAsRead, onMarkAsUnread }: MessageCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
   const handleToggle = () => {
@@ -36,6 +38,13 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
       onMarkAsRead(message.id, message.student_id);
     }
     setExpanded(!expanded);
+  };
+
+  const handleMarkAsUnread = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onMarkAsUnread) {
+      onMarkAsUnread(message.id, message.student_id);
+    }
   };
 
   const priorityColors = {
@@ -130,8 +139,22 @@ const MessageCard = ({ message, onMarkAsRead }: MessageCardProps) => {
 
       {expanded && (
         <div className="px-4 pb-4 pt-1 border-t border-gray-100 mt-1">
-          <div className="text-sm text-gray-500 mb-3">
-            <span className="font-medium">De:</span> {message.sender}
+          <div className="flex justify-between items-start mb-3">
+            <div className="text-sm text-gray-500">
+              <span className="font-medium">De:</span> {message.sender}
+            </div>
+            
+            {message.read && onMarkAsUnread && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleMarkAsUnread}
+                className="flex items-center gap-1 text-xs"
+              >
+                <Mail className="h-3 w-3" />
+                Marcar como no leído
+              </Button>
+            )}
           </div>
 
           <div className="text-gray-700 whitespace-pre-line">
