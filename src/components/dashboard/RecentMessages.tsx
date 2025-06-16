@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ChevronRight, Mail } from "lucide-react";
 import { format } from "date-fns";
@@ -38,6 +37,9 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
   React.useEffect(() => {
     setLocalMessages(messages);
   }, [messages]);
+
+  // Filter only unread messages
+  const unreadMessages = localMessages.filter(message => !message.read);
 
   const handleMarkAsUnread = async (messageId: string, studentId: string) => {
     // Optimistic update
@@ -88,15 +90,15 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
     low: "Informativo"
   };
 
-  if (localMessages.length === 0) {
+  if (unreadMessages.length === 0) {
     return (
       <div className="ios-card">
         <div className="p-6">
           <h2 className="text-xl font-bold text-ios-darkText mb-4">
-            Mensajes Recientes
+            Mensajes Pendientes
           </h2>
           <p className="text-gray-500 text-center py-8">
-            No hay mensajes recientes
+            No hay mensajes pendientes
           </p>
         </div>
       </div>
@@ -108,7 +110,7 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-ios-darkText">
-            Mensajes Recientes
+            Mensajes Pendientes
           </h2>
           <button 
             onClick={handleMessageClick}
@@ -119,7 +121,7 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
         </div>
 
         <div className="space-y-3">
-          {localMessages.slice(0, 5).map((message) => {
+          {unreadMessages.slice(0, 5).map((message) => {
             const formattedDate = format(
               new Date(message.date),
               "d MMM",
@@ -131,22 +133,15 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
                 key={`${message.message_id}-${message.student_id}`}
                 className={cn(
                   "group p-3 rounded-lg border transition-colors hover:bg-gray-50 cursor-pointer",
-                  !message.read && "border-l-4 border-l-ios-blue bg-blue-50/30"
+                  "border-l-4 border-l-ios-blue bg-blue-50/30"
                 )}
                 onClick={handleMessageClick}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      {!message.read && (
-                        <span className="h-2 w-2 rounded-full bg-ios-blue flex-shrink-0" />
-                      )}
-                      <h3
-                        className={cn(
-                          "font-medium text-sm truncate",
-                          !message.read ? "text-ios-darkText" : "text-gray-700"
-                        )}
-                      >
+                      <span className="h-2 w-2 rounded-full bg-ios-blue flex-shrink-0" />
+                      <h3 className="font-medium text-sm truncate text-ios-darkText">
                         ({message.student_first_name} {message.student_last_name1}) {message.title}
                       </h3>
                     </div>
@@ -172,34 +167,20 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
                   </div>
 
                   <div className="flex items-center gap-1 ml-2">
-                    {message.read && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleMarkAsUnread(message.message_id, message.student_id);
-                        }}
-                        className="p-1 text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Marcar como no leído"
-                      >
-                        <Mail className="h-3 w-3" />
-                      </button>
-                    )}
                     <ChevronRight className="h-4 w-4 text-gray-400" />
                   </div>
                 </div>
 
                 <div className="mt-2 flex gap-2">
-                  {!message.read && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMarkAsRead(message.message_id, message.student_id);
-                      }}
-                      className="text-xs text-ios-blue hover:underline"
-                    >
-                      Marcar como leído
-                    </button>
-                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMarkAsRead(message.message_id, message.student_id);
+                    }}
+                    className="text-xs text-ios-blue hover:underline"
+                  >
+                    Marcar como leído
+                  </button>
                 </div>
               </div>
             );
