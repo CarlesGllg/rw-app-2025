@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { ChevronRight, Mail } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
