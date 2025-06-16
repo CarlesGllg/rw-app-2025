@@ -129,85 +129,9 @@ const Dashboard = () => {
             setMessages(formattedMessages);
           }
 
-          // Fetch events related to the students' schools
-          const today = new Date().toISOString().split("T")[0];
+          // Fetch events with improved filtering logic
+          await fetchEventsForStudents(studentIds);
 
-          // First, get the courses for the students to identify their schools
-          const { data: studentCoursesData, error: studentCoursesError } = await supabase
-            .from("student_course")
-            .select(`
-              course_id,
-              courses:course_id(
-                id,
-                school_id
-              )
-            `)
-            .in("student_id", studentIds);
-
-          console.log("Student courses data:", studentCoursesData);
-
-          if (studentCoursesError) {
-            console.error("Error obteniendo cursos de estudiantes:", studentCoursesError);
-            setEvents([]);
-          } else if (studentCoursesData?.length) {
-            // Get unique school IDs from the students' courses
-            const schoolIds = [...new Set(
-              studentCoursesData
-                .map(sc => sc.courses?.school_id)
-                .filter(Boolean)
-            )];
-
-            console.log("School IDs:", schoolIds);
-
-            if (schoolIds.length > 0) {
-              // Get events assigned to these schools
-              const { data: eventSchoolData, error: eventSchoolError } = await supabase
-                .from("event_school")
-                .select(`
-                  event_id,
-                  events:event_id(
-                    id,
-                    title,
-                    description,
-                    start_date,
-                    created_at,
-                    updated_at
-                  )
-                `)
-                .in("school_id", schoolIds);
-
-              console.log("Event school data:", eventSchoolData);
-
-              if (eventSchoolError) {
-                console.error("Error obteniendo eventos de escuelas:", eventSchoolError);
-                setEvents([]);
-              } else if (eventSchoolData?.length) {
-                // Filter events that are upcoming and remove duplicates
-                const uniqueEvents = new Map();
-                
-                eventSchoolData.forEach(es => {
-                  if (es.events && new Date(es.events.start_date) >= new Date(today)) {
-                    uniqueEvents.set(es.events.id, es.events);
-                  }
-                });
-
-                const upcomingEvents = Array.from(uniqueEvents.values())
-                  .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
-
-                console.log("Final upcoming events:", upcomingEvents);
-                setEvents(upcomingEvents);
-              } else {
-                console.log("No event school data found");
-                setEvents([]);
-              }
-            } else {
-              console.log("No school IDs found");
-              setEvents([]);
-            }
-          } else {
-            console.log("No student courses data found");
-            setEvents([]);
-          }
         } else {
           console.log("No student parent data found");
           setEvents([]);
@@ -223,6 +147,109 @@ const Dashboard = () => {
 
     fetchDashboardData();
   }, [user]);
+
+  const fetchEventsForStudents = async (studentIds: string[]) => {
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      
+      // First, get the school IDs for the students' courses
+      const { data: studentCoursesData, error: studentCoursesError } = await supabase
+        .from("student_course")
+        .select(`
+          student_id,
+          course_id,
+          courses:course_id(
+            id,
+            school_id
+          )
+        `)
+        .in("student_id", studentIds);
+
+      console.log("Student courses data:", studentCoursesData);
+
+      if (studentCoursesError) {
+        console.error("Error obteniendo cursos de estudiantes:", studentCoursesError);
+        setEvents([]);
+        return;
+      }
+
+      if (!studentCoursesData?.length) {
+        console.log("No student courses data found");
+        setEvents([]);
+        return;
+      }
+
+      // Extract unique school IDs
+      const schoolIds = Array.from(new Set(
+        studentCoursesData
+          .map(sc => sc.courses?.school_id)
+          .filter((schoolId): schoolId is string => Boolean(schoolId))
+      ));
+
+      console.log("School IDs:", schoolIds);
+
+      if (schoolIds.length === 0) {
+        console.log("No school IDs found");
+        setEvents([]);
+        return;
+      }
+
+      // Get events that are assigned to these specific schools only
+      const { data: eventSchoolData, error: eventSchoolError } = await supabase
+        .from("event_school")
+        .select(`
+          event_id,
+          school_id,
+          events:event_id(
+            id,
+            title,
+            description,
+            start_date,
+            created_at,
+            updated_at
+          )
+        `)
+        .in("school_id", schoolIds);
+
+      console.log("Event school data:", eventSchoolData);
+
+      if (eventSchoolError) {
+        console.error("Error obteniendo eventos de escuelas:", eventSchoolError);
+        setEvents([]);
+        return;
+      }
+
+      if (!eventSchoolData?.length) {
+        console.log("No event school data found");
+        setEvents([]);
+        return;
+      }
+
+      // Filter and deduplicate events
+      const eventMap = new Map<string, Event>();
+      const currentDate = new Date(today);
+      
+      eventSchoolData.forEach(eventSchool => {
+        if (eventSchool.events) {
+          const eventDate = new Date(eventSchool.events.start_date);
+          // Only include future events and ensure they're assigned to the correct schools
+          if (eventDate >= currentDate && schoolIds.includes(eventSchool.school_id)) {
+            eventMap.set(eventSchool.events.id, eventSchool.events);
+          }
+        }
+      });
+
+      const upcomingEvents = Array.from(eventMap.values())
+        .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+
+      console.log("Final upcoming events:", upcomingEvents);
+      setEvents(upcomingEvents);
+
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      setEvents([]);
+    }
+  };
 
   const handleMarkAsRead = async (messageId: string, studentId: string) => {
     try {
