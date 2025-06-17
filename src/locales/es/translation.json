@@ -1,0 +1,48 @@
+
+{
+  "dashboard": {
+    "welcome": "Hola, {{name}}",
+    "pendingMessages": "Mensajes Pendientes",
+    "noPendingMessages": "No hay mensajes pendientes",
+    "viewAll": "Ver todos",
+    "quickActions": "Acciones Rápidas",
+    "upcomingEvents": "Próximos Eventos",
+    "noUpcomingEvents": "No hay eventos próximos"
+  },
+  "messages": {
+    "title": "Mensajes Escolares",
+    "subtitle": "Comunicaciones oficiales de la escuela",
+    "markAsRead": "Marcar como leído",
+    "markAsUnread": "Marcar como no leído",
+    "noMessages": "No hay mensajes disponibles",
+    "from": "De:",
+    "attachments": "adjuntos"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "messages": "Mensajes",
+    "documents": "Documentos",
+    "profile": "Perfil"
+  },
+  "priority": {
+    "high": "Urgente",
+    "medium": "Importante", 
+    "low": "Informativo"
+  },
+  "auth": {
+    "welcome": "Bienvenido",
+    "loginSubtitle": "Inicia sesión para continuar",
+    "login": "Iniciar Sesión",
+    "noAccount": "¿No tienes una cuenta? Contacta a la administración escolar",
+    "verification": "Verificación en 2 pasos",
+    "verificationSubtitle": "Por favor ingresa el código enviado",
+    "verificationHelp": "Si no has recibido el código, por favor verifica tu carpeta de spam o contacta a soporte"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "course": "Curso"
+  },
+  "footer": {
+    "copyright": "© 2025 Right Way English School. Todos los derechos reservados."
+  }
+}

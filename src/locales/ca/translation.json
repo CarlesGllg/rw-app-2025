@@ -1,0 +1,48 @@
+
+{
+  "dashboard": {
+    "welcome": "Hola, {{name}}",
+    "pendingMessages": "Missatges Pendents",
+    "noPendingMessages": "No hi ha missatges pendents",
+    "viewAll": "Veure tots",
+    "quickActions": "Accions Ràpides",
+    "upcomingEvents": "Esdeveniments Propers",
+    "noUpcomingEvents": "No hi ha esdeveniments propers"
+  },
+  "messages": {
+    "title": "Missatges Escolars",
+    "subtitle": "Comunicacions oficials de l'escola",
+    "markAsRead": "Marcar com a llegit",
+    "markAsUnread": "Marcar com a no llegit",
+    "noMessages": "No hi ha missatges disponibles",
+    "from": "De:",
+    "attachments": "adjunts"
+  },
+  "navigation": {
+    "home": "Inici",
+    "messages": "Missatges",
+    "documents": "Documents",
+    "profile": "Perfil"
+  },
+  "priority": {
+    "high": "Urgent",
+    "medium": "Important",
+    "low": "Informatiu"
+  },
+  "auth": {
+    "welcome": "Benvingut",
+    "loginSubtitle": "Inicia sessió per continuar",
+    "login": "Iniciar Sessió",
+    "noAccount": "No tens un compte? Contacta amb l'administració escolar",
+    "verification": "Verificació en 2 passos",
+    "verificationSubtitle": "Si us plau, introdueix el codi enviat",
+    "verificationHelp": "Si no has rebut el codi, si us plau revisa la carpeta de correu brossa o contacta amb suport"
+  },
+  "common": {
+    "loading": "Carregant...",
+    "course": "Curs"
+  },
+  "footer": {
+    "copyright": "© 2025 Right Way English School. Tots els drets reservats."
+  }
+}
