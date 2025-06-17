@@ -16,6 +16,7 @@ const resources = {
   },
 };
 
+// Initialize i18n synchronously to prevent React rendering issues
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -31,6 +32,12 @@ i18n
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
+    },
+
+    // Add these options to ensure synchronous initialization
+    initImmediate: false,
+    react: {
+      useSuspense: false,
     },
   });
 
