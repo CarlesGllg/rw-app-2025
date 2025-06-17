@@ -1,9 +1,11 @@
+
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import MobileNavigation from "./MobileNavigation";
 import DesktopSidebar from "./DesktopSidebar";
 import MobileMenu from "./MobileMenu";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { supabase } from "@/lib/supabase";
@@ -58,6 +60,7 @@ const AppLayout = ({ children, title }: AppLayoutProps) => {
           <h1 className="font-semibold text-xl text-ios-darkText">{title}</h1>
 
           <div className="flex items-center space-x-2">
+            <LanguageSelector />
             {unreadMessages > 0 && (
               <Button
                 variant="ghost"
