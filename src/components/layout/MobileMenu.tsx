@@ -1,8 +1,10 @@
+
 import { Bell, FileText, Home, LogOut, Menu, User, X, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 type MobileMenuProps = {
   unreadNotifications: number;
@@ -12,6 +14,7 @@ type MobileMenuProps = {
 const MobileMenu = ({ unreadNotifications, onLogout }: MobileMenuProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { t } = useTranslation();
 
   const NavItem = ({
     to,
@@ -62,7 +65,7 @@ const MobileMenu = ({ unreadNotifications, onLogout }: MobileMenuProps) => {
       <SheetContent side="left" className="w-72">
         {/* Header del menú */}
         <header className="flex items-center justify-between py-4 border-b mb-6">
-          <h2 className="font-semibold text-xl text-ios-darkText">Menú</h2>
+          <h2 className="font-semibold text-xl text-ios-darkText">{t('navigation.menu')}</h2>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Cerrar menú">
               <X size={18} />
@@ -72,15 +75,15 @@ const MobileMenu = ({ unreadNotifications, onLogout }: MobileMenuProps) => {
 
         {/* Navegación */}
         <nav className="space-y-1" role="navigation" aria-label="Menú móvil">
-          <NavItem to="/dashboard" icon={Home} label="Inicio" />
+          <NavItem to="/dashboard" icon={Home} label={t('navigation.home')} />
           <NavItem
             to="/messages"
             icon={Bell}
-            label="Mensajes"
+            label={t('navigation.messages')}
             badge={unreadNotifications}
           />
-          <NavItem to="/documents" icon={FileText} label="Documentos" />
-          <NavItem to="/profile" icon={User} label="Perfil" />
+          <NavItem to="/documents" icon={FileText} label={t('navigation.documents')} />
+          <NavItem to="/profile" icon={User} label={t('navigation.profile')} />
           <NavItem to="/contacto" icon={Mail} label="Contacto" />
         </nav>
 
@@ -92,7 +95,7 @@ const MobileMenu = ({ unreadNotifications, onLogout }: MobileMenuProps) => {
             onClick={onLogout}
           >
             <LogOut size={16} />
-            <span>Cerrar Sesión</span>
+            <span>{t('auth.logout')}</span>
           </Button>
         </div>
       </SheetContent>

@@ -1,6 +1,8 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Bell, FileText, Home, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type MobileNavigationProps = {
   unreadNotifications: number;
@@ -9,6 +11,7 @@ type MobileNavigationProps = {
 const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { t } = useTranslation();
 
   const isActive = (path: string) => currentPath === path;
 
@@ -28,7 +31,7 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           aria-current={isActive("/dashboard") ? "page" : undefined}
         >
           <Home size={20} />
-          <span>Inicio</span>
+          <span>{t('navigation.home')}</span>
         </Link>
 
         <Link
@@ -50,7 +53,7 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
               </span>
             )}
           </div>
-          <span>Mensajes</span>
+          <span>{t('navigation.messages')}</span>
         </Link>
 
         <Link
@@ -62,7 +65,7 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           aria-current={isActive("/documents") ? "page" : undefined}
         >
           <FileText size={20} />
-          <span>Documentos</span>
+          <span>{t('navigation.documents')}</span>
         </Link>
 
         <Link
@@ -74,7 +77,7 @@ const MobileNavigation = ({ unreadNotifications }: MobileNavigationProps) => {
           aria-current={isActive("/profile") ? "page" : undefined}
         >
           <User size={20} />
-          <span>Perfil</span>
+          <span>{t('navigation.profile')}</span>
         </Link>
       </div>
     </nav>

@@ -22,7 +22,8 @@
     "home": "Inicio",
     "messages": "Mensajes",
     "documents": "Documentos",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "menu": "Menú"
   },
   "priority": {
     "high": "Urgente",
@@ -33,6 +34,7 @@
     "welcome": "Bienvenido",
     "loginSubtitle": "Inicia sesión para continuar",
     "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
     "noAccount": "¿No tienes una cuenta? Contacta a la administración escolar",
     "verification": "Verificación en 2 pasos",
     "verificationSubtitle": "Por favor ingresa el código enviado",

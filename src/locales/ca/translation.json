@@ -22,7 +22,8 @@
     "home": "Inici",
     "messages": "Missatges",
     "documents": "Documents",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "menu": "Menú"
   },
   "priority": {
     "high": "Urgent",
@@ -33,6 +34,7 @@
     "welcome": "Benvingut",
     "loginSubtitle": "Inicia sessió per continuar",
     "login": "Iniciar Sessió",
+    "logout": "Tancar Sessió",
     "noAccount": "No tens un compte? Contacta amb l'administració escolar",
     "verification": "Verificació en 2 passos",
     "verificationSubtitle": "Si us plau, introdueix el codi enviat",

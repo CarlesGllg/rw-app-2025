@@ -1,7 +1,9 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { Bell, FileText, Home, LogOut, User, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type DesktopSidebarProps = {
   unreadNotifications: number;
@@ -11,6 +13,7 @@ type DesktopSidebarProps = {
 const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { t } = useTranslation();
 
   const NavItem = ({
     to,
@@ -61,15 +64,15 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
 
       {/* Scrollable navigation */}
       <div className="flex-1 overflow-y-auto p-4 space-y-1">
-        <NavItem to="/dashboard" icon={Home} label="Inicio" />
+        <NavItem to="/dashboard" icon={Home} label={t('navigation.home')} />
         <NavItem
           to="/messages"
           icon={Bell}
-          label="Mensajes"
+          label={t('navigation.messages')}
           badge={unreadNotifications}
         />
-        <NavItem to="/documents" icon={FileText} label="Documentos" />
-        <NavItem to="/profile" icon={User} label="Perfil" />
+        <NavItem to="/documents" icon={FileText} label={t('navigation.documents')} />
+        <NavItem to="/profile" icon={User} label={t('navigation.profile')} />
         <NavItem to="/contacto" icon={Mail} label="Contacto" />
       </div>
 
@@ -81,7 +84,7 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
           onClick={onLogout}
         >
           <LogOut size={16} />
-          <span>Cerrar Sesión</span>
+          <span>{t('auth.logout')}</span>
         </Button>
       </div>
     </div>
