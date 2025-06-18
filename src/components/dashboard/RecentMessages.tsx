@@ -1,12 +1,14 @@
+
 import React, { useState } from "react";
 import { ChevronRight, Mail } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 type Message = {
   id: string;
@@ -32,6 +34,7 @@ type RecentMessagesProps = {
 const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
   const [localMessages, setLocalMessages] = useState(messages);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   // Update local state when props change
   React.useEffect(() => {
@@ -58,7 +61,7 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
         .eq("message_id", messageId)
         .eq("student_id", studentId);
 
-      toast.success("Mensaje marcado como no leído");
+      toast.success(t('messages.markAsUnread'));
     } catch (error) {
       console.error("Error al marcar mensaje como no leído:", error);
       toast.error("Error al marcar como no leído");
@@ -84,21 +87,18 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
     low: "bg-green-100 text-green-800 border-green-200"
   };
 
-  const priorityLabels = {
-    high: "Urgente",
-    medium: "Importante",
-    low: "Informativo"
-  };
+  // Get the appropriate locale for date formatting
+  const locale = i18n.language === 'ca' ? ca : es;
 
   if (unreadMessages.length === 0) {
     return (
       <div className="ios-card">
         <div className="p-6">
           <h2 className="text-xl font-bold text-ios-darkText mb-4">
-            Mensajes Pendientes
+            {t('dashboard.pendingMessages')}
           </h2>
           <p className="text-gray-500 text-center py-8">
-            No hay mensajes pendientes
+            {t('dashboard.noPendingMessages')}
           </p>
         </div>
       </div>
@@ -110,13 +110,13 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-ios-darkText">
-            Mensajes Pendientes
+            {t('dashboard.pendingMessages')}
           </h2>
           <button 
             onClick={handleMessageClick}
             className="text-ios-blue text-sm font-medium hover:underline"
           >
-            Ver todos
+            {t('dashboard.viewAll')}
           </button>
         </div>
 
@@ -125,7 +125,7 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
             const formattedDate = format(
               new Date(message.date),
               "d MMM",
-              { locale: es }
+              { locale }
             );
 
             return (
@@ -155,7 +155,7 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
                         variant="outline"
                         className={cn("text-xs", priorityColors[message.priority])}
                       >
-                        {priorityLabels[message.priority]}
+                        {t(`priority.${message.priority}`)}
                       </Badge>
                       <span className="text-xs text-gray-500">{formattedDate}</span>
                       {message.course_name && (
@@ -179,7 +179,7 @@ const RecentMessages = ({ messages, onMarkAsRead }: RecentMessagesProps) => {
                     }}
                     className="text-xs text-ios-blue hover:underline"
                   >
-                    Marcar como leído
+                    {t('messages.markAsRead')}
                   </button>
                 </div>
               </div>

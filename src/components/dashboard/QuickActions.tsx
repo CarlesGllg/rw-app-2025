@@ -2,13 +2,15 @@
 import { Bell, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const QuickActions = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   return (
     <section>
-      <h3 className="font-medium text-gray-700 mb-3">Acciones Rápidas</h3>
+      <h3 className="font-medium text-gray-700 mb-3">{t('dashboard.quickActions')}</h3>
       <div className="grid grid-cols-2 gap-4">
         <Button
           variant="outline"
@@ -16,7 +18,7 @@ const QuickActions = () => {
           onClick={() => navigate("/messages")}
         >
           <Bell className="h-6 w-6 text-ios-blue" />
-          <span>Mensajes</span>
+          <span>{t('navigation.messages')}</span>
         </Button>
 
         <Button
@@ -25,7 +27,7 @@ const QuickActions = () => {
           onClick={() => navigate("/documents")}
         >
           <FileText className="h-6 w-6 text-ios-blue" />
-          <span>Documentos</span>
+          <span>{t('navigation.documents')}</span>
         </Button>
       </div>
     </section>

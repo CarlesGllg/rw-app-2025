@@ -1,13 +1,14 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca } from "date-fns/locale";
 import { AlertCircle, ChevronDown, ChevronUp, Paperclip, MailOpen, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import MessageAttachments from "./MessageAttachments";
 import { MessageAttachment } from "@/types/database";
+import { useTranslation } from "react-i18next";
 
 type Message = {
   id: string;
@@ -32,6 +33,7 @@ type MessageCardProps = {
 
 const MessageCard = ({ message, onMarkAsRead, onMarkAsUnread }: MessageCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const { t, i18n } = useTranslation();
 
   const handleToggle = () => {
     if (!message.read) {
@@ -53,13 +55,9 @@ const MessageCard = ({ message, onMarkAsRead, onMarkAsUnread }: MessageCardProps
     low: "bg-green-100 text-green-800 border-green-200"
   };
 
-  const priorityLabels = {
-    high: "Urgente",
-    medium: "Importante",
-    low: "Informativo"
-  };
-
-  const formattedDate = format(new Date(message.date), "d 'de' MMMM, yyyy", { locale: es });
+  // Get the appropriate locale for date formatting
+  const locale = i18n.language === 'ca' ? ca : es;
+  const formattedDate = format(new Date(message.date), "d 'de' MMMM, yyyy", { locale });
   const hasAttachments = message.attachments && message.attachments.length > 0;
 
   // Enhanced debugging for specific message
@@ -112,14 +110,14 @@ const MessageCard = ({ message, onMarkAsRead, onMarkAsUnread }: MessageCardProps
 
           {message.course_name && (
             <p className="text-sm text-gray-500 mt-1">
-              Curso: <span className="font-medium">{message.course_name}</span>
+              {t('common.course')}: <span className="font-medium">{message.course_name}</span>
             </p>
           )}
 
           <div className="flex flex-wrap items-center gap-2 mt-2">
             <Badge variant="outline" className={priorityColors[message.priority]}>
               {message.priority === "high" && <AlertCircle className="h-3 w-3 mr-1" />}
-              {priorityLabels[message.priority]}
+              {t(`priority.${message.priority}`)}
             </Badge>
 
             <span className="text-sm text-gray-500">
@@ -141,7 +139,7 @@ const MessageCard = ({ message, onMarkAsRead, onMarkAsUnread }: MessageCardProps
         <div className="px-4 pb-4 pt-1 border-t border-gray-100 mt-1">
           <div className="flex justify-between items-start mb-3">
             <div className="text-sm text-gray-500">
-              <span className="font-medium">De:</span> {message.sender}
+              <span className="font-medium">{t('messages.from')}</span> {message.sender}
             </div>
             
             {message.read && onMarkAsUnread && (
@@ -152,7 +150,7 @@ const MessageCard = ({ message, onMarkAsRead, onMarkAsUnread }: MessageCardProps
                 className="flex items-center gap-1 text-xs"
               >
                 <Mail className="h-3 w-3" />
-                Marcar como no leído
+                {t('messages.markAsUnread')}
               </Button>
             )}
           </div>

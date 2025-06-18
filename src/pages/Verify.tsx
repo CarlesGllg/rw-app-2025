@@ -6,12 +6,14 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 const Verify = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isVerifying, setIsVerifying] = useState(false);
   const email = location.state?.email;
+  const { t } = useTranslation();
   
   useEffect(() => {
     if (!email && !location.hash) {
@@ -72,7 +74,7 @@ const Verify = () => {
           </Button>
           
           <h1 className="text-xl font-bold text-ios-darkText">
-            Verificación
+            {t('auth.verification')}
           </h1>
         </div>
       </header>
@@ -81,10 +83,10 @@ const Verify = () => {
         <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm p-8 animate-fade-in">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-ios-darkText">
-              Verificación en 2 pasos
+              {t('auth.verification')}
             </h2>
             <p className="text-gray-500 mt-1">
-              Por favor ingresa el código enviado
+              {t('auth.verificationSubtitle')}
             </p>
           </div>
           
@@ -92,14 +94,14 @@ const Verify = () => {
           
           <div className="mt-6 text-center">
             <p className="text-xs text-gray-500">
-              Si no has recibido el código, por favor verifica tu carpeta de spam o contacta a soporte
+              {t('auth.verificationHelp')}
             </p>
           </div>
         </div>
       </main>
       
       <footer className="py-4 text-center text-sm text-gray-500">
-        <p>&copy; 2025 Right Way English School. Todos los derechos reservados.</p>
+        <p>{t('footer.copyright')}</p>
       </footer>
     </div>
   );
