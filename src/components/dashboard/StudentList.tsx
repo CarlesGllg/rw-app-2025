@@ -1,5 +1,6 @@
 
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 type Student = {
   id: string;
@@ -12,9 +13,11 @@ type StudentListProps = {
 };
 
 const StudentList = ({ students = [] }: StudentListProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="mt-6">
-      <h3 className="font-medium text-gray-700 mb-3">Estudiantes:</h3>
+      <h3 className="font-medium text-gray-700 mb-3">{t('dashboard.students')}</h3>
       {students && students.length > 0 ? (
         <div className="space-y-2">
           {students.map((student) => (
@@ -25,7 +28,7 @@ const StudentList = ({ students = [] }: StudentListProps) => {
         </div>
       ) : (
         <div className="p-4 bg-gray-50 rounded-lg text-center text-gray-500">
-          No hay estudiantes vinculados a este perfil
+          {t('dashboard.noStudents')}
         </div>
       )}
     </div>

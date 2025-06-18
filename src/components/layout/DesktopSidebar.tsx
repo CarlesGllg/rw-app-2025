@@ -58,7 +58,7 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
 
       <div className="p-6 border-b border-gray-100">
         <p className="text-base font-semibold text-gray-700 tracking-wide mt-1">
-          Portal para Padres
+          {t('navigation.parentPortal')}
         </p>
       </div>
 

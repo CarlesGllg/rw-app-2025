@@ -2,6 +2,7 @@
 import { User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type UserAvatarProps = {
   name: string;
@@ -18,6 +19,8 @@ const UserAvatar = ({
   size = "md", 
   showRole = false 
 }: UserAvatarProps) => {
+  const { t } = useTranslation();
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -44,14 +47,9 @@ const UserAvatar = ({
   const roleLabel = (role?: string) => {
     if (!role) return null;
     
-    const labels: Record<string, string> = {
-      admin: "Administrador",
-      school: "Escuela",
-      parent: "Padre/Madre",
-      teacher: "Profesor",
-    };
-    
-    return labels[role] || role;
+    // Use translation keys for roles
+    const translationKey = `roles.${role}`;
+    return t(translationKey, role); // fallback to original role if translation doesn't exist
   };
   
   const roleStyle = role ? 

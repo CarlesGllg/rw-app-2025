@@ -7,7 +7,9 @@
     "viewAll": "Veure tots",
     "quickActions": "Accions Ràpides",
     "upcomingEvents": "Esdeveniments Propers",
-    "noUpcomingEvents": "No hi ha esdeveniments propers"
+    "noUpcomingEvents": "No hi ha esdeveniments propers",
+    "students": "Estudiants:",
+    "noStudents": "No hi ha estudiants vinculats a aquest perfil"
   },
   "messages": {
     "title": "Missatges Escolars",
@@ -23,7 +25,8 @@
     "messages": "Missatges",
     "documents": "Documents",
     "profile": "Perfil",
-    "menu": "Menú"
+    "menu": "Menú",
+    "parentPortal": "Portal per a Pares"
   },
   "priority": {
     "high": "Urgent",
@@ -46,5 +49,11 @@
   },
   "footer": {
     "copyright": "© 2025 Right Way English School. Tots els drets reservats."
+  },
+  "roles": {
+    "admin": "Administrador",
+    "school": "Escola",
+    "parent": "Pare/Mare",
+    "teacher": "Professor"
   }
 }

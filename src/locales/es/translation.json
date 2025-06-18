@@ -7,7 +7,9 @@
     "viewAll": "Ver todos",
     "quickActions": "Acciones Rápidas",
     "upcomingEvents": "Próximos Eventos",
-    "noUpcomingEvents": "No hay eventos próximos"
+    "noUpcomingEvents": "No hay eventos próximos",
+    "students": "Estudiantes:",
+    "noStudents": "No hay estudiantes vinculados a este perfil"
   },
   "messages": {
     "title": "Mensajes Escolares",
@@ -23,7 +25,8 @@
     "messages": "Mensajes",
     "documents": "Documentos",
     "profile": "Perfil",
-    "menu": "Menú"
+    "menu": "Menú",
+    "parentPortal": "Portal para Padres"
   },
   "priority": {
     "high": "Urgente",
@@ -46,5 +49,11 @@
   },
   "footer": {
     "copyright": "© 2025 Right Way English School. Todos los derechos reservados."
+  },
+  "roles": {
+    "admin": "Administrador",
+    "school": "Escuela",
+    "parent": "Padre/Madre",
+    "teacher": "Profesor"
   }
 }
