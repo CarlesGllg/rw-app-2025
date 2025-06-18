@@ -16,7 +16,7 @@ const Login = () => {
             alt="Right Way English School"
             className="mx-auto"
           />
-          <p className="text-center text-gray-500 mt-1">Portal para Padres</p>
+          <p className="text-center text-gray-500 mt-1">{t('navigation.parentPortal')}</p>
         </div>
       </header>
       

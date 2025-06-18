@@ -36,7 +36,7 @@ const LoginForm = () => {
         if (error) {
           console.error('Login error:', error);
           if (error.message.includes('Invalid login credentials')) {
-            toast.error("Credenciales incorrectas. Verifica tu email y contraseña.");
+            toast.error(t('auth.invalidCredentials'));
           } else if (error.message.includes('Email not confirmed')) {
             toast.error("Por favor verifica tu correo electrónico antes de iniciar sesión.");
           } else {
@@ -47,7 +47,7 @@ const LoginForm = () => {
 
         console.log('Login successful for:', data.user?.email);
         navigate("/dashboard");
-        toast.success("¡Bienvenido de nuevo!");
+        toast.success(t('auth.welcomeBack'));
       } else {
         // Verificar si el correo está permitido
         const { data, error: fetchError } = await supabase

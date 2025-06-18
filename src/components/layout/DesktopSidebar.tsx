@@ -73,7 +73,7 @@ const DesktopSidebar = ({ unreadNotifications, onLogout }: DesktopSidebarProps) 
         />
         <NavItem to="/documents" icon={FileText} label={t('navigation.documents')} />
         <NavItem to="/profile" icon={User} label={t('navigation.profile')} />
-        <NavItem to="/contacto" icon={Mail} label="Contacto" />
+        <NavItem to="/contacto" icon={Mail} label={t('navigation.contact')} />
       </div>
 
       {/* Logout button */}

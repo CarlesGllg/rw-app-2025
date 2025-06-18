@@ -10,10 +10,10 @@ const Documents = () => {
     <AppLayout title={t('navigation.documents')}>
       <div className="mb-6">
         <h2 className="text-xl font-bold text-ios-darkText mb-2">
-          {t('navigation.documents')}
+          {t('documents.title')}
         </h2>
         <p className="text-gray-500">
-          Accede a formularios, circulares y documentos importantes
+          {t('documents.subtitle')}
         </p>
       </div>
       

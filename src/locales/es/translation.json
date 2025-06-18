@@ -18,7 +18,9 @@
     "markAsUnread": "Marcar como no leído",
     "noMessages": "No hay mensajes disponibles",
     "from": "De:",
-    "attachments": "adjuntos"
+    "attachments": "adjuntos",
+    "view": "Ver",
+    "download": "Descargar"
   },
   "navigation": {
     "home": "Inicio",
@@ -26,7 +28,8 @@
     "documents": "Documentos",
     "profile": "Perfil",
     "menu": "Menú",
-    "parentPortal": "Portal para Padres"
+    "parentPortal": "Portal para Padres",
+    "contact": "Contacto"
   },
   "priority": {
     "high": "Urgente",
@@ -50,19 +53,56 @@
     "fullNamePlaceholder": "Tu nombre completo",
     "createAccount": "Crear Cuenta",
     "noAccountRegister": "¿No tienes cuenta? Regístrate",
-    "hasAccountLogin": "¿Ya tienes cuenta? Inicia sesión"
+    "hasAccountLogin": "¿Ya tienes cuenta? Inicia sesión",
+    "invalidCredentials": "Credenciales incorrectas. Verifica tu email y contraseña.",
+    "welcomeBack": "¡Bienvenido de nuevo!"
   },
   "common": {
     "loading": "Cargando...",
     "course": "Curso"
   },
   "footer": {
-    "copyright": "© 2025 Right Way English School. Todos los derechos reservados."
+    "copyright": "© 2025 Right Way English School. Todos los derechos reservados.",
+    "version": "Versión 1.0.0"
   },
   "roles": {
     "admin": "Administrador",
     "school": "Escuela",
     "parent": "Padre/Madre",
     "teacher": "Profesor"
+  },
+  "documents": {
+    "title": "Documentos",
+    "subtitle": "Accede a formularios, circulares y documentos importantes"
+  },
+  "profile": {
+    "title": "Perfil",
+    "associatedStudents": "Estudiantes Asociados",
+    "settings": "Ajustes",
+    "customizeExperience": "Personaliza tu experiencia",
+    "notifications": "Notificaciones",
+    "receiveAlerts": "Recibe alertas importantes",
+    "changePassword": "Cambiar Contraseña",
+    "updatePassword": "Actualiza tu contraseña de acceso",
+    "newPassword": "Nueva Contraseña",
+    "confirmPassword": "Confirmar Nueva Contraseña",
+    "cancel": "Cancelar",
+    "update": "Actualizar",
+    "updating": "Actualizando...",
+    "notificationToggleOn": "Notificaciones activadas",
+    "notificationToggleOff": "Notificaciones desactivadas",
+    "passwordUpdated": "Contraseña actualizada exitosamente",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "passwordMinLength": "La contraseña debe tener al menos 6 caracteres",
+    "passwordUpdateError": "Error al cambiar la contraseña",
+    "loadingProfile": "Cargando perfil..."
+  },
+  "contact": {
+    "title": "Contacto",
+    "phones": "Teléfonos",
+    "email": "Correo Electrónico",
+    "sendEmail": "Enviar correo a",
+    "sabadell": "Sabadell",
+    "terrassa": "Terrassa"
   }
 }

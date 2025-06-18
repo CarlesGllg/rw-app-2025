@@ -1,47 +1,49 @@
+
 import { useState } from "react";
 import { Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import AppLayout from "@/components/layout/AppLayout"; // Asegúrate de importar el layout correctamente
+import AppLayout from "@/components/layout/AppLayout";
+import { useTranslation } from "react-i18next";
 
 type Office = "sabadell" | "terrassa";
 
 const CONTACTS = {
   sabadell: {
-    name: "Sabadell", // Cambiado de "Right Way Sabadell" a "Sabadell"
-    phone: "931259602", // Sin espacios en el número
-    formattedPhone: "931259602", // Eliminar espacios aquí también
+    name: "Sabadell",
+    phone: "931259602",
+    formattedPhone: "931259602",
     email: "sabadell@rwenglishschool.com",
   },
   terrassa: {
-    name: "Terrassa", // Cambiado de "Right Way Terrassa" a "Terrassa"
-    phone: "931198674", // Sin espacios
-    formattedPhone: "931198674", // Y sin espacios aquí
+    name: "Terrassa",
+    phone: "931198674",
+    formattedPhone: "931198674",
     email: "terrassa@rwenglishschool.com",
   },
 };
 
 const Contact = () => {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<Office>("sabadell");
 
   return (
-    <AppLayout title="Contacto"> {/* Aquí envolvemos con el AppLayout */}
+    <AppLayout title={t('contact.title')}>
       <section className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8 mt-8">
-        <h2 className="text-2xl font-semibold mb-6 text-ios-darkText">Contacto</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-ios-darkText">{t('contact.title')}</h2>
 
-        {/* Utilizamos flex para que las tarjetas estén una debajo de la otra */}
         <div className="flex flex-col gap-8">
           {/* Tarjeta de Teléfonos */}
           <div className="bg-white rounded-xl shadow p-6">
-            <h3 className="text-lg font-medium mb-4">Teléfonos</h3>
+            <h3 className="text-lg font-medium mb-4">{t('contact.phones')}</h3>
             <div className="flex flex-col gap-4">
               <a
                 href={`tel:${CONTACTS.sabadell.phone}`}
                 className="flex items-center gap-3 text-ios-blue hover:underline"
               >
                 <Phone size={20} />
-                <span className="font-mono text-xl"> {/* Aumentamos el tamaño del número */}
-                  <strong>{CONTACTS.sabadell.name}</strong>: 
-                  <span className="ml-2">{CONTACTS.sabadell.formattedPhone}</span> {/* Añadimos margen a la izquierda */}
+                <span className="font-mono text-xl">
+                  <strong>{t('contact.sabadell')}</strong>: 
+                  <span className="ml-2">{CONTACTS.sabadell.formattedPhone}</span>
                 </span>
               </a>
               <a
@@ -50,7 +52,7 @@ const Contact = () => {
               >
                 <Phone size={20} />
                 <span className="font-mono text-xl">
-                  <strong>{CONTACTS.terrassa.name}</strong>: 
+                  <strong>{t('contact.terrassa')}</strong>: 
                   <span className="ml-2">{CONTACTS.terrassa.formattedPhone}</span>
                 </span>
               </a>
@@ -59,21 +61,21 @@ const Contact = () => {
 
           {/* Tarjeta de Correo Electrónico */}
           <div className="bg-white rounded-xl shadow p-6">
-            <h3 className="text-lg font-medium mb-4">Correo Electrónico</h3>
+            <h3 className="text-lg font-medium mb-4">{t('contact.email')}</h3>
             <div className="mb-6 flex gap-2">
               <Button
                 size="sm"
                 variant={selected === "sabadell" ? "default" : "outline"}
                 onClick={() => setSelected("sabadell")}
               >
-                Sabadell
+                {t('contact.sabadell')}
               </Button>
               <Button
                 size="sm"
                 variant={selected === "terrassa" ? "default" : "outline"}
                 onClick={() => setSelected("terrassa")}
               >
-                Terrassa
+                {t('contact.terrassa')}
               </Button>
             </div>
             <a
@@ -81,7 +83,7 @@ const Contact = () => {
               className="flex items-center gap-3 text-ios-blue hover:underline"
             >
               <Mail size={20} />
-              Enviar correo a <span className="underline">{CONTACTS[selected].name}</span>
+              {t('contact.sendEmail')} <span className="underline">{CONTACTS[selected].name}</span>
             </a>
           </div>
         </div>

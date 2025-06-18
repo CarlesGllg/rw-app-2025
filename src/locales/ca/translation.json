@@ -18,7 +18,9 @@
     "markAsUnread": "Marcar com a no llegit",
     "noMessages": "No hi ha missatges disponibles",
     "from": "De:",
-    "attachments": "adjunts"
+    "attachments": "adjunts",
+    "view": "Veure",
+    "download": "Descarregar"
   },
   "navigation": {
     "home": "Inici",
@@ -26,7 +28,8 @@
     "documents": "Documents",
     "profile": "Perfil",
     "menu": "Menú",
-    "parentPortal": "Portal per a Pares"
+    "parentPortal": "Portal per a Pares",
+    "contact": "Contacte"
   },
   "priority": {
     "high": "Urgent",
@@ -50,19 +53,56 @@
     "fullNamePlaceholder": "El teu nom complet",
     "createAccount": "Crear Compte",
     "noAccountRegister": "No tens compte? Registra't",
-    "hasAccountLogin": "Ja tens compte? Inicia sessió"
+    "hasAccountLogin": "Ja tens compte? Inicia sessió",
+    "invalidCredentials": "Credencials incorrectes. Verifica el teu email i contrasenya.",
+    "welcomeBack": "Benvingut de nou!"
   },
   "common": {
     "loading": "Carregant...",
     "course": "Curs"
   },
   "footer": {
-    "copyright": "© 2025 Right Way English School. Tots els drets reservats."
+    "copyright": "© 2025 Right Way English School. Tots els drets reservats.",
+    "version": "Versió 1.0.0"
   },
   "roles": {
     "admin": "Administrador",
     "school": "Escola",
     "parent": "Pare/Mare",
     "teacher": "Professor"
+  },
+  "documents": {
+    "title": "Documents",
+    "subtitle": "Accedeix a formularis, circulars i documents importants"
+  },
+  "profile": {
+    "title": "Perfil",
+    "associatedStudents": "Estudiants Associats",
+    "settings": "Configuració",
+    "customizeExperience": "Personalitza la teva experiència",
+    "notifications": "Notificacions",
+    "receiveAlerts": "Rep alertes importants",
+    "changePassword": "Canviar Contrasenya",
+    "updatePassword": "Actualitza la teva contrasenya d'accés",
+    "newPassword": "Nova Contrasenya",
+    "confirmPassword": "Confirmar Nova Contrasenya",
+    "cancel": "Cancel·lar",
+    "update": "Actualitzar",
+    "updating": "Actualitzant...",
+    "notificationToggleOn": "Notificacions activades",
+    "notificationToggleOff": "Notificacions desactivades",
+    "passwordUpdated": "Contrasenya actualitzada correctament",
+    "passwordMismatch": "Les contrasenyes no coincideixen",
+    "passwordMinLength": "La contrasenya ha de tenir almenys 6 caràcters",
+    "passwordUpdateError": "Error al canviar la contrasenya",
+    "loadingProfile": "Carregant perfil..."
+  },
+  "contact": {
+    "title": "Contacte",
+    "phones": "Telèfons",
+    "email": "Correu Electrònic",
+    "sendEmail": "Enviar correu a",
+    "sabadell": "Sabadell",
+    "terrassa": "Terrassa"
   }
 }
