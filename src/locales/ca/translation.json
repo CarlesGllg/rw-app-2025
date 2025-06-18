@@ -41,7 +41,16 @@
     "noAccount": "No tens un compte? Contacta amb l'administració escolar",
     "verification": "Verificació en 2 passos",
     "verificationSubtitle": "Si us plau, introdueix el codi enviat",
-    "verificationHelp": "Si no has rebut el codi, si us plau revisa la carpeta de correu brossa o contacta amb suport"
+    "verificationHelp": "Si no has rebut el codi, si us plau revisa la carpeta de correu brossa o contacta amb suport",
+    "email": "Correu Electrònic",
+    "password": "Contrasenya",
+    "fullName": "Nom Complet",
+    "emailPlaceholder": "el.teu@correu.com",
+    "passwordPlaceholder": "La teva contrasenya",
+    "fullNamePlaceholder": "El teu nom complet",
+    "createAccount": "Crear Compte",
+    "noAccountRegister": "No tens compte? Registra't",
+    "hasAccountLogin": "Ja tens compte? Inicia sessió"
   },
   "common": {
     "loading": "Carregant...",

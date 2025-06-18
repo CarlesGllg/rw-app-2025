@@ -41,7 +41,16 @@
     "noAccount": "¿No tienes una cuenta? Contacta a la administración escolar",
     "verification": "Verificación en 2 pasos",
     "verificationSubtitle": "Por favor ingresa el código enviado",
-    "verificationHelp": "Si no has recibido el código, por favor verifica tu carpeta de spam o contacta a soporte"
+    "verificationHelp": "Si no has recibido el código, por favor verifica tu carpeta de spam o contacta a soporte",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "fullName": "Nombre Completo",
+    "emailPlaceholder": "tu@correo.com",
+    "passwordPlaceholder": "Tu contraseña",
+    "fullNamePlaceholder": "Tu nombre completo",
+    "createAccount": "Crear Cuenta",
+    "noAccountRegister": "¿No tienes cuenta? Regístrate",
+    "hasAccountLogin": "¿Ya tienes cuenta? Inicia sesión"
   },
   "common": {
     "loading": "Cargando...",

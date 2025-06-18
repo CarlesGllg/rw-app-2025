@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Lock, Mail, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 const LoginForm = () => {
+  const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -98,7 +100,7 @@ const LoginForm = () => {
         {!isLogin && (
           <div className="space-y-2">
             <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">
-              Nombre Completo
+              {t('auth.fullName')}
             </Label>
             <div className="relative flex items-center">
               <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -107,7 +109,7 @@ const LoginForm = () => {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 className="w-full pl-10 py-2 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ios-blue text-sm"
-                placeholder="Tu nombre completo"
+                placeholder={t('auth.fullNamePlaceholder')}
                 required={!isLogin}
               />
             </div>
@@ -116,7 +118,7 @@ const LoginForm = () => {
 
         <div className="space-y-2">
           <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Correo Electrónico
+            {t('auth.email')}
           </Label>
           <div className="relative flex items-center">
             <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -126,7 +128,7 @@ const LoginForm = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-10 py-2 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ios-blue text-sm"
-              placeholder="tu@correo.com"
+              placeholder={t('auth.emailPlaceholder')}
               required
               autoComplete="email"
             />
@@ -135,7 +137,7 @@ const LoginForm = () => {
 
         <div className="space-y-2">
           <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-            Contraseña
+            {t('auth.password')}
           </Label>
           <div className="relative flex items-center">
             <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -145,7 +147,7 @@ const LoginForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full pl-10 py-2 pr-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-ios-blue text-sm"
-              placeholder="Tu contraseña"
+              placeholder={t('auth.passwordPlaceholder')}
               required
               minLength={6}
               autoComplete={isLogin ? "current-password" : "new-password"}
@@ -164,7 +166,7 @@ const LoginForm = () => {
         ) : (
           <>
             <Lock className="h-4 w-4" />
-            {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
+            {isLogin ? t('auth.login') : t('auth.createAccount')}
           </>
         )}
       </Button>
@@ -175,7 +177,7 @@ const LoginForm = () => {
           className="text-sm text-ios-blue hover:underline"
           onClick={() => setIsLogin(!isLogin)}
         >
-          {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
+          {isLogin ? t('auth.noAccountRegister') : t('auth.hasAccountLogin')}
         </button>
       </div>
     </form>
