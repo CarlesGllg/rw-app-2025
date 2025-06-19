@@ -2,6 +2,7 @@
 import { Phone, Mail, MapPin } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -71,13 +72,15 @@ const Contact = () => {
                   </a>
                 </TableCell>
                 <TableCell>
-                  <a
-                    href={`mailto:${CONTACTS.sabadell.email}`}
-                    className="flex items-center gap-2 text-ios-blue hover:underline"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.href = `mailto:${CONTACTS.sabadell.email}`}
+                    className="flex items-center gap-2"
                   >
                     <Mail size={18} />
-                    <span className="break-all">{CONTACTS.sabadell.email}</span>
-                  </a>
+                    Contactar
+                  </Button>
                 </TableCell>
                 <TableCell>
                   <a
@@ -105,13 +108,15 @@ const Contact = () => {
                   </a>
                 </TableCell>
                 <TableCell>
-                  <a
-                    href={`mailto:${CONTACTS.terrassa.email}`}
-                    className="flex items-center gap-2 text-ios-blue hover:underline"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.href = `mailto:${CONTACTS.terrassa.email}`}
+                    className="flex items-center gap-2"
                   >
                     <Mail size={18} />
-                    <span className="break-all">{CONTACTS.terrassa.email}</span>
-                  </a>
+                    Contactar
+                  </Button>
                 </TableCell>
                 <TableCell>
                   <a
