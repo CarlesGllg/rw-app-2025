@@ -32,6 +32,11 @@ const LanguageSelector = () => {
     i18n.changeLanguage(languageCode);
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error('Error loading image:', e.currentTarget.src);
+    e.currentTarget.style.display = 'none';
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -40,6 +45,7 @@ const LanguageSelector = () => {
             src={currentLanguage.icon} 
             alt={currentLanguage.name}
             className="w-5 h-5 object-contain"
+            onError={handleImageError}
           />
           <Flag size={16} />
         </Button>
@@ -55,6 +61,7 @@ const LanguageSelector = () => {
               src={language.icon} 
               alt={language.name}
               className="w-5 h-5 object-contain"
+              onError={handleImageError}
             />
             <span>{language.name}</span>
             {i18n.language === language.code && (
