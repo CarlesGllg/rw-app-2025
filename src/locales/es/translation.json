@@ -59,7 +59,9 @@
   },
   "common": {
     "loading": "Cargando...",
-    "course": "Curso"
+    "course": "Curso",
+    "view": "Ver",
+    "download": "Descargar"
   },
   "footer": {
     "copyright": "© 2025 Right Way English School. Todos los derechos reservados.",

@@ -1,6 +1,6 @@
 
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca } from "date-fns/locale";
 import { FileText, Download, User, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslation } from "react-i18next";
 
 type Document = {
   id: string;
@@ -30,6 +31,7 @@ type DocumentCardProps = {
 };
 
 const DocumentCard = ({ document }: DocumentCardProps) => {
+  const { t, i18n } = useTranslation();
   const [previewOpen, setPreviewOpen] = useState(false);
   
   const typeIcons = {
@@ -40,14 +42,16 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
     other: <FileText className="text-gray-500" />
   };
   
-  const formattedDate = format(new Date(document.date), "d 'de' MMMM, yyyy", { locale: es });
+  // Seleccionar el locale apropiado basado en el idioma actual
+  const dateLocale = i18n.language === 'ca' ? ca : es;
+  const formattedDate = format(new Date(document.date), "d 'de' MMMM, yyyy", { locale: dateLocale });
   
   const handleDownload = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     // En una aplicación real, esto descargaría el archivo
-    toast.success(`Descargando ${document.title}`);
+    toast.success(`${t('common.download')} ${document.title}`);
     
     // Si tenemos una URL válida, intentamos descargar
     if (document.url && document.url.startsWith('http')) {
@@ -105,7 +109,7 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
               className="mt-4 flex items-center gap-2"
             >
               <Download className="h-4 w-4" />
-              Descargar documento
+              {t('common.download')} documento
             </Button>
           </div>
         );
@@ -162,7 +166,7 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
                   }}
                 >
                   <Eye className="h-4 w-4" />
-                  <span>Ver</span>
+                  <span>{t('common.view')}</span>
                 </Button>
                 
                 <Button
@@ -172,7 +176,7 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
                   onClick={handleDownload}
                 >
                   <Download className="h-4 w-4" />
-                  <span>Descargar</span>
+                  <span>{t('common.download')}</span>
                 </Button>
               </div>
             </div>

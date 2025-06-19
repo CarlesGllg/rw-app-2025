@@ -13,6 +13,7 @@ import StudentList from "@/components/dashboard/StudentList";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 type Student = {
   id: string;
@@ -21,6 +22,7 @@ type Student = {
 };
 
 const Profile = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -99,8 +101,8 @@ const Profile = () => {
     setNotificationsEnabled(!notificationsEnabled);
     toast.success(
       notificationsEnabled 
-        ? "Notificaciones desactivadas" 
-        : "Notificaciones activadas"
+        ? t('profile.notificationToggleOff')
+        : t('profile.notificationToggleOn')
     );
   };
 
@@ -108,12 +110,12 @@ const Profile = () => {
     e.preventDefault();
     
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
+      toast.error(t('profile.passwordMismatch'));
       return;
     }
 
     if (passwordForm.newPassword.length < 6) {
-      toast.error("La contraseña debe tener al menos 6 caracteres");
+      toast.error(t('profile.passwordMinLength'));
       return;
     }
 
@@ -126,11 +128,11 @@ const Profile = () => {
 
       if (error) {
         console.error("Error updating password:", error);
-        toast.error("Error al cambiar la contraseña");
+        toast.error(t('profile.passwordUpdateError'));
         return;
       }
 
-      toast.success("Contraseña actualizada exitosamente");
+      toast.success(t('profile.passwordUpdated'));
       setIsPasswordDialogOpen(false);
       setPasswordForm({
         currentPassword: "",
@@ -139,7 +141,7 @@ const Profile = () => {
       });
     } catch (error) {
       console.error("Error updating password:", error);
-      toast.error("Error al cambiar la contraseña");
+      toast.error(t('profile.passwordUpdateError'));
     } finally {
       setPasswordLoading(false);
     }
@@ -160,16 +162,16 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <AppLayout title="Perfil">
+      <AppLayout title={t('profile.title')}>
         <div className="flex justify-center items-center h-64">
-          <div className="text-gray-500">Cargando perfil...</div>
+          <div className="text-gray-500">{t('profile.loadingProfile')}</div>
         </div>
       </AppLayout>
     );
   }
 
   return (
-    <AppLayout title="Perfil">
+    <AppLayout title={t('profile.title')}>
       <div className="space-y-6">
         {/* Profile Header */}
         <section className="ios-card p-6 flex flex-col items-center text-center">
@@ -179,14 +181,14 @@ const Profile = () => {
           
           <h2 className="text-xl font-bold">{user.full_name || "Usuario"}</h2>
           <p className="text-gray-500">{user.email}</p>
-          <p className="text-sm text-gray-400 capitalize">{user.role}</p>
+          <p className="text-sm text-gray-400 capitalize">{t(`roles.${user.role}`)}</p>
         </section>
 
         {/* Students Section */}
         <section className="ios-card p-6">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <UserIcon className="h-5 w-5" />
-            Estudiantes Asociados
+            {t('profile.associatedStudents')}
           </h3>
           <StudentList students={students} />
         </section>
@@ -194,8 +196,8 @@ const Profile = () => {
         {/* Settings Section */}
         <section className="ios-card divide-y">
           <div className="p-4">
-            <h3 className="font-semibold mb-1">Ajustes</h3>
-            <p className="text-sm text-gray-500">Personaliza tu experiencia</p>
+            <h3 className="font-semibold mb-1">{t('profile.settings')}</h3>
+            <p className="text-sm text-gray-500">{t('profile.customizeExperience')}</p>
           </div>
 
           {/* Notification Settings */}
@@ -205,8 +207,8 @@ const Profile = () => {
                 <Bell className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-medium">Notificaciones</p>
-                <p className="text-sm text-gray-500">Recibe alertas importantes</p>
+                <p className="font-medium">{t('profile.notifications')}</p>
+                <p className="text-sm text-gray-500">{t('profile.receiveAlerts')}</p>
               </div>
             </div>
             
@@ -223,8 +225,8 @@ const Profile = () => {
                 <Lock className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-medium">Cambiar Contraseña</p>
-                <p className="text-sm text-gray-500">Actualiza tu contraseña de acceso</p>
+                <p className="font-medium">{t('profile.changePassword')}</p>
+                <p className="text-sm text-gray-500">{t('profile.updatePassword')}</p>
               </div>
             </div>
             
@@ -236,11 +238,11 @@ const Profile = () => {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Cambiar Contraseña</DialogTitle>
+                  <DialogTitle>{t('profile.changePassword')}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handlePasswordChange} className="space-y-4">
                   <div>
-                    <Label htmlFor="newPassword">Nueva Contraseña</Label>
+                    <Label htmlFor="newPassword">{t('profile.newPassword')}</Label>
                     <Input
                       id="newPassword"
                       type="password"
@@ -251,7 +253,7 @@ const Profile = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
+                    <Label htmlFor="confirmPassword">{t('profile.confirmPassword')}</Label>
                     <Input
                       id="confirmPassword"
                       type="password"
@@ -268,14 +270,14 @@ const Profile = () => {
                       className="flex-1"
                       onClick={() => setIsPasswordDialogOpen(false)}
                     >
-                      Cancelar
+                      {t('profile.cancel')}
                     </Button>
                     <Button
                       type="submit"
                       className="flex-1"
                       disabled={passwordLoading}
                     >
-                      {passwordLoading ? "Actualizando..." : "Actualizar"}
+                      {passwordLoading ? t('profile.updating') : t('profile.update')}
                     </Button>
                   </div>
                 </form>
@@ -292,13 +294,13 @@ const Profile = () => {
             onClick={handleLogout}
           >
             <Lock className="h-4 w-4" />
-            Cerrar Sesión
+            {t('auth.logout')}
           </Button>
         </div>
         
         <div className="text-center text-xs text-gray-500 py-4">
-          <p>Versión 1.0.0</p>
-          <p>&copy; 2025 Right Way English School. Todos los derechos reservados.</p>
+          <p>{t('footer.version')}</p>
+          <p>{t('footer.copyright')}</p>
         </div>
       </div>
     </AppLayout>
