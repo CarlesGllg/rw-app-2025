@@ -17,12 +17,12 @@ const LanguageSelector = () => {
     {
       code: 'es',
       name: 'Español',
-      flag: '🇪🇸',
+      icon: '/esp_icon.png',
     },
     {
       code: 'ca',
       name: 'Català',
-      flag: '🏴󠁥󠁳󠁣󠁴󠁿',
+      icon: '/cat_icon.png',
     },
   ];
 
@@ -36,7 +36,11 @@ const LanguageSelector = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="flex items-center gap-2">
-          <span className="text-lg">{currentLanguage.flag}</span>
+          <img 
+            src={currentLanguage.icon} 
+            alt={currentLanguage.name}
+            className="w-5 h-5 object-contain"
+          />
           <Flag size={16} />
         </Button>
       </DropdownMenuTrigger>
@@ -47,7 +51,11 @@ const LanguageSelector = () => {
             onClick={() => changeLanguage(language.code)}
             className="flex items-center gap-2 cursor-pointer"
           >
-            <span className="text-lg">{language.flag}</span>
+            <img 
+              src={language.icon} 
+              alt={language.name}
+              className="w-5 h-5 object-contain"
+            />
             <span>{language.name}</span>
             {i18n.language === language.code && (
               <span className="ml-auto text-ios-blue">✓</span>
