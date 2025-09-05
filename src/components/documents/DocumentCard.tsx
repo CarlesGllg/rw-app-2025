@@ -60,15 +60,25 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
   };
   
   const handlePreview = () => {
+    console.log("=== Document Preview Debug ===");
+    console.log("Document URL:", document.url);
+    console.log("Document type:", document.type);
+    console.log("URL is valid HTTP?:", document.url && document.url.startsWith('http'));
     setPreviewOpen(true);
   };
   
   const renderPreview = () => {
+    console.log("=== Render Preview Debug ===");
+    console.log("Document URL in renderPreview:", document.url);
+    console.log("Document type in renderPreview:", document.type);
+    
     // Si no hay URL válida
     if (!document.url || !document.url.startsWith('http')) {
+      console.log("URL is invalid or not HTTP:", document.url);
       return (
-        <div className="min-h-[300px] flex items-center justify-center">
+        <div className="min-h-[300px] flex flex-col items-center justify-center gap-4">
           <p className="text-gray-500">No hay vista previa disponible para este documento</p>
+          <p className="text-xs text-gray-400">URL: {document.url || 'No URL'}</p>
         </div>
       );
     }
@@ -76,11 +86,14 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
     // Switch según el tipo de documento
     switch (document.type) {
       case 'pdf':
+        console.log("Rendering PDF iframe with URL:", `${document.url}#toolbar=0`);
         return (
           <iframe 
             src={`${document.url}#toolbar=0`} 
             className="w-full h-[70vh]"
             title={document.title}
+            onLoad={() => console.log("PDF iframe loaded successfully")}
+            onError={() => console.error("PDF iframe failed to load")}
           />
         );
       case 'img':
