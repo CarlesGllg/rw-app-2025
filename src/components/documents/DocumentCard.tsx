@@ -64,6 +64,17 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
     console.log("Document URL:", document.url);
     console.log("Document type:", document.type);
     console.log("URL is valid HTTP?:", document.url && document.url.startsWith('http'));
+    
+    // Detectar si es una URL de SharePoint/OneDrive
+    const isSharePointUrl = document.url && (document.url.includes('sharepoint.com') || document.url.includes('1drv.ms'));
+    
+    if (isSharePointUrl) {
+      // Abrir directamente en nueva pestaña si es SharePoint/OneDrive
+      window.open(document.url, '_blank');
+      return;
+    }
+    
+    // Comportamiento normal para otras URLs
     setPreviewOpen(true);
   };
   
