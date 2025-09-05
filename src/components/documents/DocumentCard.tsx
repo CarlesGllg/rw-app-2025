@@ -82,6 +82,32 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
         </div>
       );
     }
+
+    // Detectar si es una URL de SharePoint/OneDrive que no se puede embeber
+    const isSharePointUrl = document.url.includes('sharepoint.com') || document.url.includes('1drv.ms');
+    
+    if (isSharePointUrl && document.type === 'pdf') {
+      return (
+        <div className="min-h-[300px] flex flex-col items-center justify-center gap-4">
+          <div className="h-16 w-16 flex items-center justify-center bg-red-50 rounded-lg">
+            <FileText className="h-8 w-8 text-red-500" />
+          </div>
+          <div className="text-center">
+            <p className="text-gray-700 mb-2">Este documento está alojado en SharePoint</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Por razones de seguridad, no se puede mostrar en vista previa
+            </p>
+            <Button
+              onClick={() => window.open(document.url, '_blank')}
+              className="flex items-center gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              Abrir documento
+            </Button>
+          </div>
+        </div>
+      );
+    }
     
     // Switch según el tipo de documento
     switch (document.type) {
