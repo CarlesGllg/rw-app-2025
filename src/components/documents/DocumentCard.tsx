@@ -59,6 +59,22 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
     }
   };
   
+  // Función para transformar URLs de OneDrive/SharePoint para evitar popup de autenticación
+  const transformOneDriveUrl = (url: string) => {
+    if (!url) return url;
+    
+    // Si es una URL de SharePoint con :b: (binary/PDF), convertir a embed viewer
+    if (url.includes('sharepoint.com') && url.includes(':b:')) {
+      // Extraer la parte antes de ?e= y convertir a embed viewer
+      const baseUrl = url.split('?')[0];
+      // Cambiar :b: por :e: para embed view y añadir parámetros para evitar autenticación
+      const embedUrl = baseUrl.replace(':b:', ':e:') + '?action=embedview&wdStartOn=1';
+      return embedUrl;
+    }
+    
+    return url;
+  };
+
   const handlePreview = () => {
     console.log("=== Document Preview Debug ===");
     console.log("Document URL:", document.url);
@@ -69,8 +85,10 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
     const isSharePointUrl = document.url && (document.url.includes('sharepoint.com') || document.url.includes('1drv.ms'));
     
     if (isSharePointUrl) {
-      // Abrir directamente en nueva pestaña si es SharePoint/OneDrive
-      window.open(document.url, '_blank');
+      // Transformar URL para evitar popup de autenticación y abrir
+      const transformedUrl = transformOneDriveUrl(document.url);
+      console.log("Opening transformed OneDrive URL:", transformedUrl);
+      window.open(transformedUrl, '_blank');
       return;
     }
     
