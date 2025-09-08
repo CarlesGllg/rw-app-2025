@@ -18,7 +18,8 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const siteUrl = window.location.origin;
+  // Usar una URL fija que funcione en iOS y web
+  const siteUrl = window.location.origin || "https://c331e078-5e42-4ad2-bcdf-f586670a0002.lovableproject.com";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +70,8 @@ const LoginForm = () => {
             data: {
               full_name: fullName,
             },
-            emailRedirectTo: `${siteUrl}/verificar`,
+            // Para iOS, usar una URL de redirección más simple
+            emailRedirectTo: `${siteUrl}/dashboard`,
           },
         });
 
